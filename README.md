@@ -1,10 +1,8 @@
 # GardenSimulator2023
 
-# Devlog Entry - 11/17/2023
+## Devlog Entry - 11/19/2023
 
-## Introducing the team
-
-Either organizing by person or by role, tell us who will do what on your team. Your team should span at least the following roles (with no person having more than one role):
+### **Introducing the team**
 
 Mika - Engine Lead<br>
 Zane - Idea Design Lead<br>
@@ -15,21 +13,24 @@ Wyatt - Tools Lead<br>
 
 **Engine Lead:** This person will research alternative engines, get buy-in from teammates on the choice, and teach peers how to use it if it is new to them. This might involve making small code examples outside of the main game project to teach others. The Engine Lead should also establish standards for which kinds of code should be organized into which folders of the project. They should try to propose software designs that insulate the rest of the team from many details of the underlying engine.
 
-**Design Lead:** This person will be responsible for setting the creative direction of the project, and establishing the look and feel of the game. They might make small art or code samples for others to help them contribute and maintain game content. Where the project might involve a domain-specific language, the Design Lead (who is still an engineer in this class) will lead the discussion as to what primitive elements the language needs to provide.
-If your team has more than three people, you are welcome to sub-divide the roles above into more specific roles or tag people as Assistant or Backup for one of the existing roles. You might need to invent new roles if your team is going to try a special game design technique (e.g. assign a Procgen Lead if your team uses procedural generation).
+**Idea Design Lead:** This person will be responsible for setting the creative direction of the project, and establishing the look and feel of the game. They might make small art or code samples for others to help them contribute and maintain game content. Where the project might involve a domain-specific language, the Design Lead (who is still an engineer in this class) will lead the discussion as to what primitive elements the language needs to provide.
 
-## Tools and materials
+**Code Design Lead:** This person will be responsible for identifying code smells and proposing better ways to approach code (refactoring). They will help with the development and maintenance of the coding style guidance, ensuring consistency and and coherence for a smooth operation. The Code Design Lead will be pivotal in fostering a clean, efficient, and collaborative coding practices within the team.
 
-With about one paragraph each...
+### **Tools and materials**
 
-Tell us about what engines, libraries, frameworks, and or platforms you intend to use, and give us a tiny bit of detail about why your team chose those.
-Tell us programming languages (e.g. TypeScript) and data languages (e.g. JSON) you team expects to use and why you chose them. Presumably you’ll just be using the languages expected by your previously chosen engine/platform.
-Tell us about which tools you expect to use in the process of authoring your project. You might name the IDE for writing code, the image editor for creating visual assets, or the 3D editor you will use for building your scene. Again, briefly tell us why you made these choices. Maybe one of your teammates feels especially skilled in that tool or it represents something you all want to learn about.
+We are using the Phaser library because of the Tweens function, which allows us to animate objects with ease.
+We will use the TypeScript language since that's the main focus of this CMPM 121, and we all feel comfortable using it. We are planning to have a data-driven design game, so JSON could be helpful for that, but we are still hashing out the details.
 
-## Outlook
+For the IDE, we are using VSCode with the following extensions: ESLint, Live Share, Prettier, and TypeScript Importer. This would allow us to keep a similar coding style and the allow us to together at the same time. For now, we are planning to do a text-based game where we will use letters to indicate cells (for example, 0 could be an empty cell, x is the player, etc.), which doesn't require any imaging tools.
 
-Give us a short section on your outlook on the project. You might cover one or more of these topics:
+### **Outlook**
 
-What is your team hoping to accomplish that other teams might not attempt?
-What do you anticipate being the hardest or riskiest part of the project?
-What are you hoping to learn by approaching the project with the tools and materials you selected above?
+**What is your team hoping to accomplish that other teams might not attempt?**<br>
+We are thinking of attempting to use Glitch to allow multiple players to connect to the same shared game world. We hope that this should be a reasonable goal if we set up our code in a way that can support it from the beginning. We think that other teams may not attempt this because it requires you to think about how you create game and its classes in a way where you can support multiple players at the same time.
+
+**What do you anticipate being the hardest or riskiest part of the project?**<br>
+We are anticipating that the most challenging part of the project will be creating the base for the project in a way that allows it to be adjusted and scaled easily as more requirements arise in combination with thinking about multiplayer support with Glitch. We think that this will also be the riskiest part of the project as it will require us to initially create our project in a way that allows some of the code to run on a server.
+
+**What are you hoping to learn by approaching the project with the tools and materials you selected above?**<br>
+We are hoping to learn how to create flexible code that can easily be modified and expanded in addition to creating an experience that supports multiple players playing simultaneously. We also want to learn how to maintain coding guidance throughout the entire project, and keep deadlines without writing "smelly code".
