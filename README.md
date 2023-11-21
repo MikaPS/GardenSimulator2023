@@ -1,7 +1,7 @@
 # GardenSimulator2023
 
 ### Previous devlogs entries:
-- 11/17/2023 - introducing the team: https://github.com/MikaPS/GardenSimulator2023/commit/7540886627cbef3e1712af57be852ae1b07cce49
+- 11/17/2023 - introducing the team: https://github.com/MikaPS/GardenSimulator2023/tree/969395d396bd3d06578792227bb6261b358070af
   
 ### Devlog Entry - 11/20/2023
 
