@@ -10,6 +10,6 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 document.title = "Garden Simulator 2023";
-document.body.style.backgroundColor = "OliveDrab";
+document.body.style.backgroundColor = "#6F4E37";
 
 new Phaser.Game(config);

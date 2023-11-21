@@ -9,8 +9,9 @@ export interface Point {
 export class GameWorld {
   plantLayer = new Map<string, Plant>();
   playerLayer: Player[] = [];
-  //Background layer
 
+  //Background layer
+  playerInventory: Plant[] = [];
   sunMod: number = 1;
   waterMod: number = 1;
   time: number = 1;
@@ -28,14 +29,25 @@ export class GameWorld {
     }
     const newPlant = new Plant(point, plantType);
     this.plantLayer.set(key, newPlant);
+    //Send boardChanged event;
+  }
 
+  harvestPlant(point: Point) {
+    const key = JSON.stringify(point);
+    if (!this.plantLayer.has(key)) {
+      return;
+    }
+    const plantToHarvest: Plant = this.plantLayer.get(key)!;
+    this.playerInventory.push(plantToHarvest);
+    plantToHarvest.placeInventory(this.playerInventory.length);
+    this.plantLayer.delete(key);
     //Send boardChanged event;
   }
 
   changeTime() {
     this.time += 1;
-    this.sunMod = Math.floor(Math.random() * 3);
-    this.waterMod = Math.floor(Math.random() * 3);
+    this.sunMod = Math.floor(Math.random() * 5);
+    this.waterMod = Math.floor(Math.random() * 5);
     //Send boardChanged event;
   }
   createPlayer(point: Point): Player {
@@ -57,6 +69,10 @@ export class GameWorld {
       drawArray.push(this.drawPlayer(player, scene));
     });
 
+    this.playerInventory.forEach((plant: Plant) => {
+      drawArray.push(this.drawPlant(plant, scene));
+    });
+
     return drawArray;
   }
 
@@ -70,9 +86,9 @@ export class GameWorld {
       plant.getEmoji(),
     );
 
-    const cropPixels = 5;
+   
     t.setPadding(this.padding);
-    t.setCrop(0, cropPixels, t.width, t.height);
+    t.setCrop(0, this.checkLevel(plant), t.width, t.height);
     return t;
   }
 
@@ -87,6 +103,10 @@ export class GameWorld {
       { padding: this.padding },
     );
     return t;
+  }
+
+  private checkLevel(plant: Plant) {
+    return 2 * plant.level + 1;
   }
 
   //   private updateBoard() {

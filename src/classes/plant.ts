@@ -16,7 +16,7 @@ export class Plant {
   level: number;
 
   constructor(point: Point, pType: PlantType) {
-    this.point = point;
+    this.point = {x: point.x, y: point.y};
     this.level = 1;
     this.plantType = pType;
   }
@@ -27,5 +27,9 @@ export class Plant {
 
   getEmoji(): string {
     return plantTypeToEmoji.get(this.plantType)!;
+  }
+  placeInventory(index: number){
+    this.point.x = 500
+    this.point.y = 20 * index + 20
   }
 }
