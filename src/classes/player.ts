@@ -8,7 +8,9 @@ export class Player {
   }
 
   move(xMove: number, yMove: number) {
-    this.point.x += xMove;
+    if (this.point.x < 19 || xMove === -1) {
+      this.point.x += xMove;
+    }
     this.point.y += yMove;
   }
 }

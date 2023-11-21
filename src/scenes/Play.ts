@@ -39,6 +39,7 @@ export default class Play extends Phaser.Scene {
     //this.board.placePlant({ x: 1, y: 2 }, "Sunflower");
     this.redraw();
     //this.player = board.createPlayer({ x: 1, y: 6 });
+    this.add.rectangle(590, 0, 50, 700, 0x000000).setOrigin(0,0);
 
   
     this.addDirectionButton("➡️",100 + 2 * this.buttonSize, 400 , 1 , 0); // Right
@@ -54,13 +55,11 @@ export default class Play extends Phaser.Scene {
       i++;
     });
 
-    this.add.text(500, 400, "🚜")
-    .setInteractive()
-    .setFontSize("30pt")
-      .on("pointerdown", () => {
-        this.board.harvestPlant(this.player.point)
-      this.onButtonClicked();
-    })
+    this.createEmojiButton(480, 400, "🚜", () => {this.board.harvestPlant(this.player.point)});
+    this.createEmojiButton(530, 400, "🕰️", () => {});
+
+    
+    this.add.rectangle()
   }
 
   
@@ -87,7 +86,13 @@ export default class Play extends Phaser.Scene {
   
   onButtonClicked() {
     // Handle button click
-    console.log("click");
+    //console.log("click");this.add.text(point.x, point.y, plantTypeToEmoji.get(plantName)!)
+    if (this.board.haveWon()) {
+      this.add.text(50,50, "YOU WON\n!1!!1!!1!!!!")
+      .setFontSize('100pt');
+        
+    }
+    this.board.changeTime();
     this.redraw();
   }
 
@@ -100,8 +105,23 @@ export default class Play extends Phaser.Scene {
     this.drawnElements.forEach((t) => {
       t.destroy();
     });
+
+    
+  }
+  createEmojiButton(x: number, y: number, emoji: string, callback: () => void){
+    const emojiButton = this.add.text(x, y, emoji)
+      .setInteractive()
+      .setFontSize("30pt")
+      .on("pointerdown", () => {
+        callback();
+        this.onButtonClicked();
+      });
+
+    return emojiButton;
   }
   //Called every tick
   //Maybe redraw the screen only when there is a screen change
-  update() {}
+  update() {
+
+  }
 }

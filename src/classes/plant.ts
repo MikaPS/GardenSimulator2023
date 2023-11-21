@@ -13,23 +13,35 @@ export const plantTypeToEmoji: Map<PlantType, string> = new Map([
 export class Plant {
   point: Point;
   plantType: PlantType;
-  level: number;
+  currentLevel: number;
+  maxLevel: number = 50;
 
   constructor(point: Point, pType: PlantType) {
-    this.point = {x: point.x, y: point.y};
-    this.level = 1;
+    this.point = { x: point.x, y: point.y };
+    this.currentLevel = 1;
     this.plantType = pType;
   }
 
-  levelUp(sunMod: number, waterMod: number, timeMod: number) {
-    this.level += sunMod * waterMod * timeMod;
+  levelUp(sunMod: number, waterMod: number, numOfPlants: number) {
+    if (numOfPlants < 2){
+      this.currentLevel = this.clamp(0,this.maxLevel,this.currentLevel + (sunMod * waterMod));
+    }
+  }
+  clamp(min: number, max: number, val: number) {
+    return Math.max(min, (Math.min(max, val)));
   }
 
   getEmoji(): string {
     return plantTypeToEmoji.get(this.plantType)!;
   }
-  placeInventory(index: number){
-    this.point.x = 500
-    this.point.y = 20 * index + 20
+  placeInventory(index: number) {
+    this.point.x = 20;
+    this.point.y = index / 1.7;
+  }
+  getGrowPercentage() {
+    return this.currentLevel / this.maxLevel;
+  }
+  isReady() {
+    return this.currentLevel >= this.maxLevel;
   }
 }

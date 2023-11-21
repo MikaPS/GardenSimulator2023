@@ -19,6 +19,7 @@ export class GameWorld {
 
   private cellWidth = 30;
   private padding = { x: 0, y: 3 };
+  private winAmount = 5;
 
   constructor() {}
 
@@ -38,18 +39,48 @@ export class GameWorld {
       return;
     }
     const plantToHarvest: Plant = this.plantLayer.get(key)!;
-    this.playerInventory.push(plantToHarvest);
-    plantToHarvest.placeInventory(this.playerInventory.length);
-    this.plantLayer.delete(key);
+    if (plantToHarvest.isReady()) {
+      this.playerInventory.push(plantToHarvest);
+      plantToHarvest.placeInventory(this.playerInventory.length);
+      this.plantLayer.delete(key);
+    }
     //Send boardChanged event;
   }
 
   changeTime() {
     this.time += 1;
-    this.sunMod = Math.floor(Math.random() * 5);
-    this.waterMod = Math.floor(Math.random() * 5);
+    const currentSun = Math.floor(Math.random() * 3);
+    this.plantLayer.forEach((plant: Plant) => {
+      plant.levelUp(currentSun, this.waterMod, this.checkPlantsNearby(plant.point));
+    });
+    this.waterMod = Math.floor(Math.random() * 5) - this.plantLayer.size;
+    if (this.waterMod <= 0) {
+      this.waterMod = 1;
+    }
+    
+    console.log(this.haveWon());
     //Send boardChanged event;
   }
+
+  checkPlantsNearby(point: Point): number {
+    let count = 0;
+    const { x, y } = point;
+    const directions = [
+      { x: x, y: y - 1 },
+      { x: x, y: y + 1 },
+      { x: x - 1, y: y },
+      { x: x + 1, y: y },
+    ];
+
+    directions.forEach((direction) => {
+      //console.log(JSON.stringify(direction));
+      if (this.plantLayer.has(JSON.stringify(direction))) {
+        count++;
+      }
+    });
+    return count;
+  }
+
   createPlayer(point: Point): Player {
     const newPlayer = new Player(point);
     this.playerLayer.push(newPlayer);
@@ -86,7 +117,6 @@ export class GameWorld {
       plant.getEmoji(),
     );
 
-   
     t.setPadding(this.padding);
     t.setCrop(0, this.checkLevel(plant), t.width, t.height);
     return t;
@@ -106,7 +136,13 @@ export class GameWorld {
   }
 
   private checkLevel(plant: Plant) {
-    return 2 * plant.level + 1;
+    //Max is 15?
+    const max = 14;
+    return max - max * plant.getGrowPercentage();
+  }
+  
+  haveWon(){
+    return (this.playerInventory.length > this.winAmount)
   }
 
   //   private updateBoard() {
@@ -116,4 +152,5 @@ export class GameWorld {
   //       console.log("board is updating !!!");
   //     });
   //   }
+  
 }
