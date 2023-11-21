@@ -33,10 +33,6 @@ export default class Play extends Phaser.Scene {
   create() {
     // // Set up event listeners
     // this.button.on("pointerdown", this.onButtonClicked, this);
-
-    //this.board.placePlant({ x: 1, y: 1 }, "Sunflower");
-    //this.board.placePlant({ x: 2, y: 1 }, "AppleTree");
-    //this.board.placePlant({ x: 1, y: 2 }, "Sunflower");
     this.redraw();
     //this.player = board.createPlayer({ x: 1, y: 6 });
     this.add.rectangle(590, 0, 50, 700, 0x000000).setOrigin(0,0);
@@ -105,9 +101,8 @@ export default class Play extends Phaser.Scene {
     this.drawnElements.forEach((t) => {
       t.destroy();
     });
-
-    
   }
+
   createEmojiButton(x: number, y: number, emoji: string, callback: () => void){
     const emojiButton = this.add.text(x, y, emoji)
       .setInteractive()
