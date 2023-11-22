@@ -25,7 +25,7 @@
 - **[F0.f] Simple spatial rules govern plant growth based on sun, water, and nearby plants (growth is unlocked by satisfying conditions).**
   If a plant has 2 or more plants within a cross around it, the plant is unable to grow at all. This satisfies the requirements because a plant will grow a set amount based on 3 conditions. The amount of water in the soil (which is affected by the total number of plants). The sun value (which is randomly generated every turn) and the number of nearby plants (if there are two or more plants nearby, then a plant is unable to grow)
 
--**[F0.g] A play scenario is completed when some condition is satisfied (e.g. at least X plants at growth level Y or above).** <><br>
+- **[F0.g] A play scenario is completed when some condition is satisfied (e.g. at least X plants at growth level Y or above).** <br>
 When the player harvests 6 or more plants, the game is won and a helpful message appears. This satisfies the requirements as the scenario is effectively completed after 6 plants have been gathered.
 
 ## Reflection
