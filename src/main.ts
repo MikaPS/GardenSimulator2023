@@ -9,7 +9,17 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: "#6b8e23",
 };
 
+new Phaser.Game(config);
+
 document.title = "Garden Simulator 2023";
 document.body.style.backgroundColor = "#6F4E37";
 
-new Phaser.Game(config);
+document.body.appendChild(document.createElement("br"));
+
+const buttons = ["⬅️", "⬆️", "⬇️", "➡️", "undo", "redo"];
+buttons.forEach((direction) => {
+  const button = document.createElement("button");
+  button.innerHTML = direction;
+  button.id = direction + "Button";
+  document.body.appendChild(button);
+});
