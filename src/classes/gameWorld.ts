@@ -46,15 +46,21 @@ export class GameWorld {
     // console.log(JSON.stringify(Array.from(savedPlantMap)));
 
     const savedPlayerList: Point[] = [];
-
     this.playerLayer.forEach((player) => {
       savedPlayerList.push(player.point);
+    });
+
+    const savedInventoryList: string[] = [];
+    this.playerInventory.forEach((plant) => {
+      const BA = plant.exportToByteArray();
+      const str = this.arrayBufferToBase64(BA);
+      savedInventoryList.push(str);
     });
 
     const saveState: SaveState = {
       plantLayer: JSON.stringify(Array.from(savedPlantMap)),
       playerPoints: JSON.stringify(savedPlayerList),
-      playerInventory: JSON.stringify(this.playerInventory),
+      playerInventory: JSON.stringify(savedInventoryList),
       sunMod: this.sunMod,
       waterMod: this.waterMod,
       time: this.time,
@@ -66,11 +72,10 @@ export class GameWorld {
   importFrom(state: string) {
     const saveState: SaveState = JSON.parse(state);
 
+    //Import Plants
+    this.plantLayer = new Map<string, Plant>();
     let plantLayerList: Map<string, string> = JSON.parse(saveState.plantLayer);
     plantLayerList = new Map(plantLayerList);
-
-    this.plantLayer = new Map<string, Plant>();
-
     if (plantLayerList.size > 0) {
       plantLayerList.forEach((buff: string, key: string) => {
         const BF = this.base64ToArrayBuffer(buff);
@@ -80,14 +85,26 @@ export class GameWorld {
       });
     }
 
-    const points = JSON.parse(saveState.playerPoints);
+    //List of base64 strings
+    this.playerInventory = [];
+    const inventoryList = JSON.parse(saveState.playerInventory);
+    if (inventoryList.length > 0) {
+      inventoryList.forEach((buff: string) => {
+        const BF = this.base64ToArrayBuffer(buff);
+        const plant = new Plant();
+        plant.importFromByteArray(BF);
+        this.playerInventory.push(plant);
+      });
+    }
 
+    //Import Players
+    const points = JSON.parse(saveState.playerPoints);
     this.playerLayer = [];
     points.forEach((p: Point) => {
       this.playerLayer.push(new Player(p));
     });
 
-    this.playerInventory = JSON.parse(saveState.playerInventory);
+    //import world stats
     this.sunMod = saveState.sunMod;
     this.waterMod = saveState.waterMod;
     this.time = saveState.time;
