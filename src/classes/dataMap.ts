@@ -32,18 +32,6 @@ export class DataMap implements Iterator<Plant> {
     const smallPlantArray = new Uint8Array(plant.exportToByteArray());
     // this.view.setUint8(loc, smallPlantArray[0]);
     this.writePlantAt(loc, smallPlantArray);
-
-    // const x = this.view.getFloat64(loc);
-    // const y = this.view.getFloat64(loc + 8);
-    // console.log("Set: " + key + " at " + loc);
-    // console.log("actual: " + x + "," + y);
-    // console.log(this.gridBuffer);
-
-    // newPlant.importFromByteArray(new Uint8Array(plantData));
-
-    // need to convert the plant's byte array to a number to set it on the grid, no clue if this logic is correet
-    // const plantDataView = new DataView(plant.exportToByteArray());
-    // this.view.setFloat64(loc, plantDataView.getFloat64(0));
   }
 
   size() {
@@ -103,7 +91,6 @@ export class DataMap implements Iterator<Plant> {
 
   next(): IteratorResult<Plant> {
     if (this.currentIterationIndex < this.width * this.height) {
-      console.log("current iteration: " + this.currentIterationIndex);
       const plantData = this.getPlantAt(
         this.view,
         this.currentIterationIndex * this.BUFFER_SIZE,
@@ -120,13 +107,11 @@ export class DataMap implements Iterator<Plant> {
 
   forEach(callback: (value: Plant, index: number) => void) {
     this.currentIterationIndex = 0;
-    console.log("foreach");
     for (const plant of this) {
       if (plant.plantType == undefined) {
         this.currentIterationIndex++;
         continue;
       }
-      console.log(plant);
       callback(plant, this.currentIterationIndex++);
     }
   }

@@ -146,14 +146,14 @@ export class GameWorld {
 
   placePlant(point: Point, plantType: PlantType) {
     const key = JSON.stringify(point);
-    console.log("PlacePlant");
+    // console.log("PlacePlant");
     if (this.plantLayer.has(key)) {
-      console.log("a plant is already here");
+      // console.log("a plant is already here");
       return;
     }
     const newPlant = new Plant(point, plantType);
     this.plantLayer.set(key, newPlant);
-    console.log("new plant");
+    // console.log("new plant");
 
     // this.exportTo();
     //Send boardChanged event;
@@ -229,8 +229,6 @@ export class GameWorld {
       //console.log(plant);
       drawArray.push(this.drawPlant(plant, scene));
     });
-    console.log("draw to, number of drawings: ");
-    console.log(drawArray.length);
     this.playerLayer.forEach((player) => {
       drawArray.push(this.drawPlayer(player, scene));
     });
@@ -254,8 +252,6 @@ export class GameWorld {
 
     t.setPadding(this.padding);
     t.setCrop(0, this.checkLevel(plant), t.width, t.height);
-    console.log("in draw plant: ");
-    console.log(t);
     return t;
   }
 
