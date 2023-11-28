@@ -2,10 +2,10 @@ import * as Phaser from "phaser";
 import { GameWorld } from "../classes/gameWorld.ts";
 import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
-import { Point } from "../classes/gameWorld.ts";
+// import { Point } from "../classes/gameWorld.ts";
 
 export default class Play extends Phaser.Scene {
-  private buttonSize = 35;
+  // private buttonSize = 35;
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
   drawnElements: Phaser.GameObjects.Text[] = [];
@@ -52,28 +52,15 @@ export default class Play extends Phaser.Scene {
       this.redo();
     });
 
-    const intialButton = { x: 300, y: 400 };
-    let i = 0;
-
-    for (const key in plantTypeToEmoji) {
-      this.addPlantButton(key as PlantType, {
-        x: intialButton.x + i * this.buttonSize,
-        y: 400,
-      });
-      i++;
-    }
-    // plantTypeToEmoji.forEach((_value, key) => {
-    //   this.addPlantButton(key, {
-    //     x: intialButton.x + i * this.buttonSize,
-    //     y: 400,
-    //   });
-    //   i++;
-    // });
-
-    this.createEmojiButton(480, 400, "🚜", () => {
+    this.createEmojiButton("🚜", () => {
       this.board.harvestPlant(this.player.point);
     });
-    this.createEmojiButton(530, 400, "🕰️", () => {});
+    this.createEmojiButton("🕰️", () => {});
+
+    document.body.appendChild(document.createElement("br"));
+    for (const key in plantTypeToEmoji) {
+      this.addPlantButton(key as PlantType);
+    }
 
     this.add.rectangle();
   }
@@ -86,16 +73,16 @@ export default class Play extends Phaser.Scene {
     });
   }
 
-  addPlantButton(plantName: PlantType, point: Point) {
+  addPlantButton(plantName: PlantType) {
     // const pt = plantName as string;
-    this.add
-      .text(point.x, point.y, plantTypeToEmoji[plantName])
-      .setInteractive()
-      .setFontSize("20pt")
-      .on("pointerdown", () => {
-        this.board.placePlant(this.player.point, plantName);
-        this.onActionClicked();
-      });
+    const button = document.createElement("button");
+    button.innerHTML = plantTypeToEmoji[plantName];
+    button.addEventListener("click", () => {
+      this.board.placePlant(this.player.point, plantName);
+      this.onActionClicked();
+    });
+
+    document.body.appendChild(button);
   }
 
   onActionClicked() {
@@ -163,17 +150,16 @@ export default class Play extends Phaser.Scene {
     });
   }
 
-  createEmojiButton(x: number, y: number, emoji: string, callback: () => void) {
-    const emojiButton = this.add
-      .text(x, y, emoji)
-      .setInteractive()
-      .setFontSize("30pt")
-      .on("pointerdown", () => {
-        callback();
-        this.onActionClicked();
-      });
+  createEmojiButton(emoji: string, callback: () => void) {
+    const button = document.createElement("button");
+    button.innerHTML = emoji;
+    button.addEventListener("click", () => {
+      callback();
+      this.onActionClicked();
+    });
+    document.body.appendChild(button);
 
-    return emojiButton;
+    return button;
   }
   //Called every tick
   //Maybe redraw the screen only when there is a screen change

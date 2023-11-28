@@ -16,10 +16,14 @@ document.body.style.backgroundColor = "#6F4E37";
 
 document.body.appendChild(document.createElement("br"));
 
-const buttons = ["⬅️", "⬆️", "⬇️", "➡️", "undo", "redo"];
-buttons.forEach((direction) => {
-  const button = document.createElement("button");
-  button.innerHTML = direction;
-  button.id = direction + "Button";
-  document.body.appendChild(button);
-});
+createMovementButtons();
+
+function createMovementButtons() {
+  const buttons = ["⬅️", "⬆️", "⬇️", "➡️", "undo", "redo"];
+  buttons.forEach((direction) => {
+    const button = document.createElement("button");
+    button.innerHTML = direction;
+    button.id = direction + "Button";
+    document.body.appendChild(button);
+  });
+}

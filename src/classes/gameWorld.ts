@@ -1,5 +1,7 @@
 import { Plant, PlantType } from "./plant.ts";
 import { Player } from "./player.ts";
+import { BUFFER_SIZE } from "./plant.ts";
+import { DataMap } from "./dataMap.ts";
 
 export interface Point {
   x: number;
@@ -16,7 +18,14 @@ interface SaveState {
 }
 
 export class GameWorld {
-  plantLayer = new Map<string, Plant>();
+  private cellWidth = 50;
+  private width = 12;
+  private height = 10;
+
+  private plantLayer = new DataMap(this.width, this.height, BUFFER_SIZE);
+  // private view = new DataView(this.plantLayer);
+  //plantLayer = new Map<string, Plant>();
+
   playerLayer: Player[] = [];
 
   //Background layer
@@ -26,7 +35,6 @@ export class GameWorld {
   time: number = 1;
   event = new Event("updating-board");
 
-  private cellWidth = 30;
   private padding = { x: 0, y: 3 };
   private winAmount = 5;
 
@@ -37,13 +45,13 @@ export class GameWorld {
   exportTo() {
     //Export plantLayer - Has to be an array of byte arrays
     const savedPlantMap = new Map<string, string>();
-    this.plantLayer.forEach((plant, key) => {
+    this.plantLayer.forEach((plant) => {
+      const key = plant.getKey();
+
       const BA = plant.exportToByteArray();
+
       savedPlantMap.set(key, this.arrayBufferToBase64(BA));
     });
-    // console.log("export plant map: ");
-    // console.log(savedPlantMap);
-    // console.log(JSON.stringify(Array.from(savedPlantMap)));
 
     const savedPlayerList: Point[] = [];
     this.playerLayer.forEach((player) => {
@@ -73,7 +81,9 @@ export class GameWorld {
     const saveState: SaveState = JSON.parse(state);
 
     //Import Plants
-    this.plantLayer = new Map<string, Plant>();
+    this.plantLayer = new DataMap(this.width, this.height, BUFFER_SIZE);
+
+    // this.plantLayer = new Map<string, Plant>();
     let plantLayerList: Map<string, string> = JSON.parse(saveState.plantLayer);
     plantLayerList = new Map(plantLayerList);
     if (plantLayerList.size > 0) {
@@ -136,12 +146,16 @@ export class GameWorld {
 
   placePlant(point: Point, plantType: PlantType) {
     const key = JSON.stringify(point);
+    console.log("PlacePlant");
     if (this.plantLayer.has(key)) {
+      console.log("a plant is already here");
       return;
     }
     const newPlant = new Plant(point, plantType);
     this.plantLayer.set(key, newPlant);
-    this.exportTo();
+    console.log("new plant");
+
+    // this.exportTo();
     //Send boardChanged event;
   }
 
@@ -154,7 +168,7 @@ export class GameWorld {
 
     if (plantToHarvest.isReady()) {
       this.playerInventory.push(plantToHarvest);
-      plantToHarvest.placeInventory(this.playerInventory.length);
+      plantToHarvest.placeInventory(12, -this.playerInventory.length);
       this.plantLayer.delete(key);
     }
     //Send boardChanged event;
@@ -170,7 +184,7 @@ export class GameWorld {
         this.checkPlantsNearby(plant.point),
       );
     });
-    this.waterMod = Math.floor(Math.random() * 5) - this.plantLayer.size;
+    this.waterMod = Math.floor(Math.random() * 5) - this.plantLayer.size();
     if (this.waterMod <= 0) {
       this.waterMod = 1;
     }
@@ -210,11 +224,13 @@ export class GameWorld {
     //backgroudLayer.foreach()
     const drawArray: Phaser.GameObjects.Text[] = [];
     // console.log(this.plantLayer);
-
+    //console.log("Size: " + this.plantLayer.size());
     this.plantLayer.forEach((plant: Plant) => {
+      //console.log(plant);
       drawArray.push(this.drawPlant(plant, scene));
     });
-
+    console.log("draw to, number of drawings: ");
+    console.log(drawArray.length);
     this.playerLayer.forEach((player) => {
       drawArray.push(this.drawPlayer(player, scene));
     });
@@ -238,6 +254,8 @@ export class GameWorld {
 
     t.setPadding(this.padding);
     t.setCrop(0, this.checkLevel(plant), t.width, t.height);
+    console.log("in draw plant: ");
+    console.log(t);
     return t;
   }
 
@@ -263,12 +281,4 @@ export class GameWorld {
   haveWon() {
     return this.playerInventory.length > this.winAmount;
   }
-
-  //   private updateBoard() {
-  //     document.dispatchEvent(this.event);
-
-  //     document.addEventListener("updating-board", () => {
-  //       console.log("board is updating !!!");
-  //     });
-  //   }
 }

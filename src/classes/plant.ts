@@ -20,8 +20,10 @@ export const plantTypeToEmoji: Record<PlantType, string> = {
   lilyOfTheValley: "🌼",
 };
 
+export const BUFFER_SIZE: number = 25;
+
 export class Plant {
-  private buffer = new ArrayBuffer(25);
+  private buffer = new ArrayBuffer(BUFFER_SIZE);
   private view = new DataView(this.buffer);
 
   // point: Point;
@@ -97,6 +99,10 @@ export class Plant {
     this.view.setUint8(this.PLANT_TYPE_POS, pType);
   }
 
+  getKey(): string {
+    return JSON.stringify(this.point);
+  }
+
   exportToByteArray(): ArrayBuffer {
     return this.buffer;
   }
@@ -124,8 +130,8 @@ export class Plant {
     return plantTypeToEmoji[this.plantType];
   }
 
-  placeInventory(index: number) {
-    this.point = { x: 20, y: index / 1.7 };
+  placeInventory(x: number, index: number) {
+    this.point = { x: x, y: index / 2.7 };
   }
 
   getGrowPercentage() {
