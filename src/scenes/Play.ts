@@ -3,6 +3,7 @@ import { GameWorld } from "../classes/gameWorld.ts";
 import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
 // import { Point } from "../classes/gameWorld.ts";
+import { Plant } from "../classes/plant.ts";
 
 export default class Play extends Phaser.Scene {
   // private buttonSize = 35;
@@ -63,6 +64,15 @@ export default class Play extends Phaser.Scene {
     }
 
     this.add.rectangle();
+
+    const p = new Plant({ x: 0, y: 0 });
+    p.currentLevel = 15;
+    console.log("Before: " + p.currentLevel);
+
+    const data = p.exportToByteArray();
+    const p2 = new Plant({ x: 0, y: 0 });
+    p2.importFromByteArray(data);
+    console.log("After: " + p2.currentLevel);
   }
 
   addDirectionButton(direction: string, dirX: number, dirY: number) {

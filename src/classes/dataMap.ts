@@ -54,9 +54,10 @@ export class DataMap implements Iterator<Plant> {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
     const plantData = this.getPlantAt(this.view, loc);
-
     const newPlant = new Plant();
     newPlant.importFromByteArray(new Uint8Array(plantData).buffer);
+    console.log("P from get " + newPlant.currentLevel);
+
     return newPlant;
   }
 
@@ -81,7 +82,20 @@ export class DataMap implements Iterator<Plant> {
     //From Plant class Type
     const plantData = this.getPlantAt(this.view, loc);
     const newP = new Plant();
+
     newP.importFromByteArray(new Uint8Array(plantData).buffer);
+
+    if (newP.plantType !== undefined) {
+      console.log("P from has " + newP.currentLevel);
+      console.log(
+        "buffer from plantdata in has, ",
+        new Uint8Array(plantData).buffer,
+      );
+      const v = new DataView(new Uint8Array(plantData).buffer);
+      const num = v.getFloat32(16);
+      console.log("Read ", num);
+    }
+
     return newP.plantType !== undefined;
   }
 
@@ -98,6 +112,9 @@ export class DataMap implements Iterator<Plant> {
       const newPlant = new Plant();
 
       newPlant.importFromByteArray(new Uint8Array(plantData).buffer);
+      if (newPlant.plantType !== undefined) {
+        console.log("P from next " + newPlant.currentLevel);
+      }
       return { value: newPlant, done: false };
     } else {
       this.currentIterationIndex = 0;

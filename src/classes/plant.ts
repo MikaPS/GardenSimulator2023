@@ -44,7 +44,6 @@ export class Plant {
     maxLevel: 20-23
     plantType: 24
     */
-
     const defaultStartingLevel = 1;
     const defaultMaxLevel = 12;
 
@@ -113,16 +112,21 @@ export class Plant {
   }
 
   levelUp(sunMod: number, waterMod: number, numOfPlants: number) {
+    console.log("Before: " + this.currentLevel);
     if (numOfPlants < 2) {
-      this.currentLevel = this.clamp(
+      const v = this.clamp(
         0,
         this.maxLevel,
         this.currentLevel + sunMod * waterMod,
       );
+      console.log("level (v): ", v);
+      this.currentLevel = v;
     }
+    console.log("afterZ: " + this.currentLevel);
   }
 
   clamp(min: number, max: number, val: number) {
+    return val;
     return Math.max(min, Math.min(max, val));
   }
 

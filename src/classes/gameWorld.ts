@@ -86,11 +86,15 @@ export class GameWorld {
     // this.plantLayer = new Map<string, Plant>();
     let plantLayerList: Map<string, string> = JSON.parse(saveState.plantLayer);
     plantLayerList = new Map(plantLayerList);
+    // let plantLayerList: DataMap = JSON.parse(saveState.plantLayer);
+    // plantLayerList = new DataMap(this.width, this.height, BUFFER_SIZE);
+
     if (plantLayerList.size > 0) {
       plantLayerList.forEach((buff: string, key: string) => {
         const BF = this.base64ToArrayBuffer(buff);
         const plant = new Plant();
         plant.importFromByteArray(BF);
+        console.log("P from export " + plant.currentLevel);
         this.plantLayer.set(key, plant);
       });
     }
@@ -102,6 +106,7 @@ export class GameWorld {
       inventoryList.forEach((buff: string) => {
         const BF = this.base64ToArrayBuffer(buff);
         const plant = new Plant();
+        console.log("P from export 2 (inventory) " + plant.currentLevel);
         plant.importFromByteArray(BF);
         this.playerInventory.push(plant);
       });
@@ -146,17 +151,13 @@ export class GameWorld {
 
   placePlant(point: Point, plantType: PlantType) {
     const key = JSON.stringify(point);
-    // console.log("PlacePlant");
     if (this.plantLayer.has(key)) {
-      // console.log("a plant is already here");
       return;
     }
     const newPlant = new Plant(point, plantType);
-    this.plantLayer.set(key, newPlant);
-    // console.log("new plant");
+    console.log("P from placeplant " + newPlant.currentLevel);
 
-    // this.exportTo();
-    //Send boardChanged event;
+    this.plantLayer.set(key, newPlant);
   }
 
   harvestPlant(point: Point) {
@@ -183,14 +184,13 @@ export class GameWorld {
         this.waterMod,
         this.checkPlantsNearby(plant.point),
       );
+      const key = plant.getKey();
+      this.plantLayer.set(key, plant);
     });
     this.waterMod = Math.floor(Math.random() * 5) - this.plantLayer.size();
     if (this.waterMod <= 0) {
       this.waterMod = 1;
     }
-
-    //console.log("have we won? ", this.haveWon());
-    //Send boardChanged event;
   }
 
   checkPlantsNearby(point: Point): number {
@@ -204,7 +204,6 @@ export class GameWorld {
     ];
 
     directions.forEach((direction) => {
-      //console.log(JSON.stringify(direction));
       if (this.plantLayer.has(JSON.stringify(direction))) {
         count++;
       }
@@ -223,10 +222,7 @@ export class GameWorld {
   drawTo(scene: Phaser.Scene): Phaser.GameObjects.Text[] {
     //backgroudLayer.foreach()
     const drawArray: Phaser.GameObjects.Text[] = [];
-    // console.log(this.plantLayer);
-    //console.log("Size: " + this.plantLayer.size());
     this.plantLayer.forEach((plant: Plant) => {
-      //console.log(plant);
       drawArray.push(this.drawPlant(plant, scene));
     });
     this.playerLayer.forEach((player) => {
