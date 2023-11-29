@@ -2,8 +2,6 @@ import * as Phaser from "phaser";
 import { GameWorld } from "../classes/gameWorld.ts";
 import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
-// import { Point } from "../classes/gameWorld.ts";
-import { Plant } from "../classes/plant.ts";
 
 export default class Play extends Phaser.Scene {
   // private buttonSize = 35;
@@ -20,15 +18,7 @@ export default class Play extends Phaser.Scene {
     super("play");
   }
 
-  preload() {
-    //this.load.image("starfield", starfieldUrl);
-  }
-
-  // #addKey(
-  //   name: keyof typeof Phaser.Input.Keyboard.KeyCodes,
-  // ): Phaser.Input.Keyboard.Key {
-  //   return this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes[name]);
-  // }
+  preload() {}
 
   create() {
     // // Set up event listeners
@@ -65,20 +55,22 @@ export default class Play extends Phaser.Scene {
 
     this.add.rectangle();
 
-    const p = new Plant({ x: 0, y: 0 });
-    p.currentLevel = 15;
-    console.log("Before: " + p.currentLevel);
-
-    const data = p.exportToByteArray();
-    const p2 = new Plant({ x: 0, y: 0 });
-    p2.importFromByteArray(data);
-    console.log("After: " + p2.currentLevel);
+    // WHY DO WE NEED THIS?
+    // const p = new Plant({ x: 0, y: 0 });
+    // p.currentLevel = 15;
+    // const data = p.exportToByteArray();
+    // const p2 = new Plant({ x: 0, y: 0 });
+    // p2.importFromByteArray(data);
   }
 
   addDirectionButton(direction: string, dirX: number, dirY: number) {
     const button = document.querySelector(`#${direction}Button`);
     button?.addEventListener("click", () => {
       this.player.move(dirX, dirY);
+      this.board.plantLayer.setPlayer(
+        JSON.stringify(this.player.point),
+        this.player.id,
+      );
       this.onActionClicked();
     });
   }
@@ -97,9 +89,6 @@ export default class Play extends Phaser.Scene {
 
   onActionClicked() {
     // Handle button click
-    //console.log("click");this.add.text(point.x, point.y, plantTypeToEmoji.get(plantName)!)
-    // console.log("click");
-
     this.gameHistory.push(this.lastMove);
     this.lastMove = this.board.exportTo();
 

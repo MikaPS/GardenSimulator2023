@@ -52,10 +52,6 @@ export class Plant {
     this.view.setFloat32(this.CURRRENT_LEVEL_POS, defaultStartingLevel);
     this.view.setFloat32(this.MAX_LEVEL_POS, defaultMaxLevel);
     this.view.setUint8(this.PLANT_TYPE_POS, plantTypeNumbers[pType] as number);
-
-    // this.point = { x: point.x, y: point.y };
-    // this.currentLevel = 1;
-    // this.plantType = pType;
   }
 
   // get/set point
@@ -112,21 +108,17 @@ export class Plant {
   }
 
   levelUp(sunMod: number, waterMod: number, numOfPlants: number) {
-    console.log("Before: " + this.currentLevel);
     if (numOfPlants < 2) {
       const v = this.clamp(
         0,
         this.maxLevel,
         this.currentLevel + sunMod * waterMod,
       );
-      console.log("level (v): ", v);
       this.currentLevel = v;
     }
-    console.log("afterZ: " + this.currentLevel);
   }
 
   clamp(min: number, max: number, val: number) {
-    return val;
     return Math.max(min, Math.min(max, val));
   }
 

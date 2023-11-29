@@ -1,4 +1,5 @@
 import { Plant } from "./plant.ts";
+import { Player } from "./player.ts";
 import { Point } from "./gameWorld.ts";
 
 export class DataMap implements Iterator<Plant> {
@@ -8,14 +9,20 @@ export class DataMap implements Iterator<Plant> {
 
   public width: number;
   public height: number;
-  //   public size: number;
-
+  public size: number = 0;
   public BUFFER_SIZE: number;
+  private PLANT_BUFFER_SIZE: number;
 
-  constructor(width: number, height: number, BUFFER_SIZE: number) {
+  constructor(
+    width: number,
+    height: number,
+    PLANT_BUFFER_SIZE: number,
+    PLAYER_BUFFER_SIZE: number,
+  ) {
+    this.PLANT_BUFFER_SIZE = PLANT_BUFFER_SIZE;
     this.width = width;
     this.height = height;
-    this.BUFFER_SIZE = BUFFER_SIZE;
+    this.BUFFER_SIZE = PLANT_BUFFER_SIZE + PLAYER_BUFFER_SIZE;
     this.gridBuffer = new ArrayBuffer(
       this.BUFFER_SIZE * this.width * this.height,
     );
@@ -23,6 +30,22 @@ export class DataMap implements Iterator<Plant> {
     for (let i = 0; i < width * height; i++) {
       this.zeroPlant(i * this.BUFFER_SIZE);
     }
+  }
+
+  setSize() {
+    let count = 0;
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        if (this.has(JSON.stringify({ x, y }))) {
+          count++;
+        }
+      }
+    }
+    this.size = count;
+  }
+
+  getBufferLocation(point: Point): number {
+    return (point.x + point.y * this.width) * this.BUFFER_SIZE;
   }
 
   set(key: string, plant: Plant) {
@@ -34,20 +57,13 @@ export class DataMap implements Iterator<Plant> {
     this.writePlantAt(loc, smallPlantArray);
   }
 
-  size() {
-    let count = 0;
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
-        if (this.has(JSON.stringify({ x, y }))) {
-          count++;
-        }
-      }
-    }
-    return count;
-  }
-
-  getBufferLocation(point: Point): number {
-    return (point.x + point.y * this.width) * this.BUFFER_SIZE;
+  // Players only have the location, so we can just write one uint8 to the last location after the plants
+  // Each unit8 would represent the location of one of the players
+  setPlayer(key: string, id: number) {
+    const point: Point = JSON.parse(key);
+    const loc = this.PLANT_BUFFER_SIZE + id * 8;
+    this.view.setInt32(loc, point.x);
+    this.view.setInt32(loc + 4, point.y);
   }
 
   get(key: string) {
@@ -56,9 +72,15 @@ export class DataMap implements Iterator<Plant> {
     const plantData = this.getPlantAt(this.view, loc);
     const newPlant = new Plant();
     newPlant.importFromByteArray(new Uint8Array(plantData).buffer);
-    console.log("P from get " + newPlant.currentLevel);
-
     return newPlant;
+  }
+
+  getPlayer(id: number) {
+    const loc = this.PLANT_BUFFER_SIZE + id * 8;
+    const x = this.view.getInt32(loc);
+    const y = this.view.getInt32(loc + 4);
+    const newPlayer = new Player({ x, y }, id);
+    return newPlayer;
   }
 
   delete(key: string) {
@@ -85,16 +107,10 @@ export class DataMap implements Iterator<Plant> {
 
     newP.importFromByteArray(new Uint8Array(plantData).buffer);
 
-    if (newP.plantType !== undefined) {
-      console.log("P from has " + newP.currentLevel);
-      console.log(
-        "buffer from plantdata in has, ",
-        new Uint8Array(plantData).buffer,
-      );
-      const v = new DataView(new Uint8Array(plantData).buffer);
-      const num = v.getFloat32(16);
-      console.log("Read ", num);
-    }
+    // if (newP.plantType !== undefined) {
+    //   const v = new DataView(new Uint8Array(plantData).buffer);
+    //   const num = v.getFloat32(16);
+    // }
 
     return newP.plantType !== undefined;
   }
@@ -112,9 +128,6 @@ export class DataMap implements Iterator<Plant> {
       const newPlant = new Plant();
 
       newPlant.importFromByteArray(new Uint8Array(plantData).buffer);
-      if (newPlant.plantType !== undefined) {
-        console.log("P from next " + newPlant.currentLevel);
-      }
       return { value: newPlant, done: false };
     } else {
       this.currentIterationIndex = 0;
@@ -130,6 +143,21 @@ export class DataMap implements Iterator<Plant> {
         continue;
       }
       callback(plant, this.currentIterationIndex++);
+    }
+  }
+
+  *iteratePlayers(): Generator<Player> {
+    let count = 0;
+    for (let i = this.PLANT_BUFFER_SIZE; i < this.BUFFER_SIZE; i += 8) {
+      yield this.getPlayer(count);
+      count += 1;
+    }
+  }
+
+  deletePlayers() {
+    for (let i = this.PLANT_BUFFER_SIZE; i < this.BUFFER_SIZE; i += 8) {
+      this.view.setFloat32(i, 0);
+      this.view.setFloat32(i + 4, 0);
     }
   }
 

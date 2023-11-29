@@ -21,12 +21,18 @@ export class GameWorld {
   private cellWidth = 50;
   private width = 12;
   private height = 10;
-
-  private plantLayer = new DataMap(this.width, this.height, BUFFER_SIZE);
+  private numPlayers = 0;
+  // Buffersize works for only plants, if we want to add the player we need to make it bigger
+  public plantLayer = new DataMap(
+    this.width,
+    this.height,
+    BUFFER_SIZE,
+    8 * (this.numPlayers + 1),
+  );
   // private view = new DataView(this.plantLayer);
   //plantLayer = new Map<string, Plant>();
 
-  playerLayer: Player[] = [];
+  // playerLayer: Player[] = [];
 
   //Background layer
   playerInventory: Plant[] = [];
@@ -37,8 +43,6 @@ export class GameWorld {
 
   private padding = { x: 0, y: 3 };
   private winAmount = 5;
-
-  // cellArray = new Array(100);
 
   constructor() {}
 
@@ -54,9 +58,12 @@ export class GameWorld {
     });
 
     const savedPlayerList: Point[] = [];
-    this.playerLayer.forEach((player) => {
+    for (const player of this.plantLayer.iteratePlayers()) {
       savedPlayerList.push(player.point);
-    });
+    }
+    // this.playerLayer.forEach((player) => {
+    //   savedPlayerList.push(player.point);
+    // });
 
     const savedInventoryList: string[] = [];
     this.playerInventory.forEach((plant) => {
@@ -75,13 +82,17 @@ export class GameWorld {
     };
 
     return JSON.stringify(saveState);
-    //Export playerLayer - Byte array?
   }
   importFrom(state: string) {
     const saveState: SaveState = JSON.parse(state);
 
     //Import Plants
-    this.plantLayer = new DataMap(this.width, this.height, BUFFER_SIZE);
+    this.plantLayer = new DataMap(
+      this.width,
+      this.height,
+      BUFFER_SIZE,
+      this.numPlayers,
+    );
 
     // this.plantLayer = new Map<string, Plant>();
     let plantLayerList: Map<string, string> = JSON.parse(saveState.plantLayer);
@@ -94,7 +105,6 @@ export class GameWorld {
         const BF = this.base64ToArrayBuffer(buff);
         const plant = new Plant();
         plant.importFromByteArray(BF);
-        console.log("P from export " + plant.currentLevel);
         this.plantLayer.set(key, plant);
       });
     }
@@ -106,7 +116,6 @@ export class GameWorld {
       inventoryList.forEach((buff: string) => {
         const BF = this.base64ToArrayBuffer(buff);
         const plant = new Plant();
-        console.log("P from export 2 (inventory) " + plant.currentLevel);
         plant.importFromByteArray(BF);
         this.playerInventory.push(plant);
       });
@@ -114,17 +123,21 @@ export class GameWorld {
 
     //Import Players
     const points = JSON.parse(saveState.playerPoints);
-    this.playerLayer = [];
-    points.forEach((p: Point) => {
-      this.playerLayer.push(new Player(p));
+    this.plantLayer.deletePlayers();
+    this.numPlayers = 0;
+    points.forEach((p: Point, i: number) => {
+      this.plantLayer.setPlayer(JSON.stringify(p), i);
+      this.numPlayers += 1;
     });
+    // this.playerLayer = [];
+    // points.forEach((p: Point, i: number) => {
+    //   this.playerLayer.push(new Player(p, i));
+    // });
 
     //import world stats
     this.sunMod = saveState.sunMod;
     this.waterMod = saveState.waterMod;
     this.time = saveState.time;
-
-    // this.playerLayer[0].move(-1, 1);
   }
   // Convert ArrayBuffer to base64 string
   arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -146,7 +159,8 @@ export class GameWorld {
   }
 
   getOnePlayer(): Player {
-    return this.playerLayer[0];
+    return this.plantLayer.getPlayer(0);
+    // return this.playerLayer[0];
   }
 
   placePlant(point: Point, plantType: PlantType) {
@@ -155,8 +169,6 @@ export class GameWorld {
       return;
     }
     const newPlant = new Plant(point, plantType);
-    console.log("P from placeplant " + newPlant.currentLevel);
-
     this.plantLayer.set(key, newPlant);
   }
 
@@ -169,7 +181,7 @@ export class GameWorld {
 
     if (plantToHarvest.isReady()) {
       this.playerInventory.push(plantToHarvest);
-      plantToHarvest.placeInventory(12, -this.playerInventory.length);
+      plantToHarvest.placeInventory(12, this.playerInventory.length);
       this.plantLayer.delete(key);
     }
     //Send boardChanged event;
@@ -187,7 +199,7 @@ export class GameWorld {
       const key = plant.getKey();
       this.plantLayer.set(key, plant);
     });
-    this.waterMod = Math.floor(Math.random() * 5) - this.plantLayer.size();
+    this.waterMod = Math.floor(Math.random() * 5) - this.plantLayer.size;
     if (this.waterMod <= 0) {
       this.waterMod = 1;
     }
@@ -211,11 +223,12 @@ export class GameWorld {
     return count;
   }
 
-  createPlayer(point: Point): Player {
-    const newPlayer = new Player(point);
-    this.playerLayer.push(newPlayer);
-    //Send BoardChanged event;
-
+  createPlayer(point: Point) {
+    const newPlayer = new Player(point, this.numPlayers);
+    // // this.playerLayer.push(newPlayer);
+    const key = JSON.stringify(point);
+    this.plantLayer.setPlayer(key, this.numPlayers);
+    this.numPlayers += 1;
     return newPlayer;
   }
 
@@ -225,9 +238,12 @@ export class GameWorld {
     this.plantLayer.forEach((plant: Plant) => {
       drawArray.push(this.drawPlant(plant, scene));
     });
-    this.playerLayer.forEach((player) => {
+    for (const player of this.plantLayer.iteratePlayers()) {
       drawArray.push(this.drawPlayer(player, scene));
-    });
+    }
+    // this.playerLayer.forEach((player) => {
+    //   drawArray.push(this.drawPlayer(player, scene));
+    // });
 
     this.playerInventory.forEach((plant: Plant) => {
       drawArray.push(this.drawPlant(plant, scene));
