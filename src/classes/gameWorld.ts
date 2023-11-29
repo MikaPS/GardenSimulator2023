@@ -61,26 +61,64 @@ export class GameWorld {
   // LOCAL STORAGE
 
   saveData(id: number) {
+    console.log("id is: ", id);
+    const inSaved = localStorage.getItem("savedData")!; //get data
     this.mySavedData[id] = this.gameState;
-    const savedData = this.arrayBufferToBase64(this.mySavedData[id].gridBuffer);
-    // this.mySavedData[id] = this.gameState;
 
-    localStorage.setItem("savedData", savedData);
+    if (inSaved == undefined) {
+      //check data
+      //this is just what it used to be
+      // this.mySavedData[id] = this.gameState;
+      let str = "";
+      this.mySavedData.forEach((key) => {
+        str += this.arrayBufferToBase64(key.gridBuffer) + "||";
+      });
+      console.log("dont have data: ", this.mySavedData.length);
+
+      localStorage.setItem("savedData", str);
+      return;
+    }
+    const savedData: string[] = inSaved.split("||");
+    savedData[id] = this.arrayBufferToBase64(this.gameState.gridBuffer);
+    // this.mySavedData = this.arrayBufferToBase64(this.gameState.gridBuffer);
+    // Takes all gridBuffers from the data maps and adds them to a string
+    let str = "";
+    savedData.forEach((key) => {
+      str += key + "||";
+    });
+    console.log("already have data: ", savedData.length);
+    localStorage.setItem("savedData", str);
+    // console.log("save data: ", this.mySavedData[id]);
   }
 
   // Load data from the local storage
   loadData(id: number) {
-    const savedData = this.base64ToArrayBuffer(
-      localStorage.getItem("savedData")!,
-    );
+    console.log("id is: ", id);
+    const str = localStorage.getItem("savedData")!;
+    const savedData = str.split("||");
+    // savedData is an array of strings
+    // this.savedData is array of datamaps
+
+    // savedData.forEach((key) => {
+    //   console.log("each loaded state: ", this.base64ToArrayBuffer(key));
+    // });
+    // console.log("load data: ", this.base64ToArrayBuffer(savedData[id]));
+
+    // this.mySavedData[0].gridBuffer = this.base64ToArrayBuffer(savedData[0])
+
     if (savedData) {
-      this.mySavedData[id].gridBuffer = savedData;
-      this.mySavedData[id].view = new DataView(savedData);
+      this.mySavedData[id].gridBuffer = this.base64ToArrayBuffer(savedData[id]);
+      this.mySavedData[id].view = new DataView(
+        this.base64ToArrayBuffer(savedData[id]),
+      );
+      //^we dont need any of this
+      //we jsut need to split the array then save it to game state
       this.gameState = this.mySavedData[id];
       // If there's nothing in local storage, put default values
-    } else {
-      this.mySavedData = [];
     }
+    // else {
+    //   this.mySavedData = [];
+    // }
   }
 
   exportTo() {

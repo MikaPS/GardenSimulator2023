@@ -55,29 +55,45 @@ export default class Play extends Phaser.Scene {
       `#savefile2Button`,
       `#savefile3Button`,
     ];
-    let id = 0;
-    for (const element of saveArr) {
+
+    saveArr.forEach((element, id) => {
       const save = document.querySelector(element);
       save?.addEventListener("click", () => {
         this.board.saveData(id);
-        id++;
       });
-    }
+    });
+    // let id = 0;
+    // for (const element of saveArr) {
+    //   const save = document.querySelector(element);
+    //   save?.addEventListener("click", () => {
+    //     this.board.saveData(id);
+    //     id++;
+    //   });
+    // }
     const loadArr: string[] = [
       `#loadfile1Button`,
       `#loadfile2Button`,
       `#loadfile3Button`,
     ];
-    id = 0;
-    for (const element of loadArr) {
+
+    loadArr.forEach((element, id) => {
       const load = document.querySelector(element);
       load?.addEventListener("click", () => {
         this.board.loadData(id);
         this.player = this.board.getOnePlayer();
         this.redraw();
-        id++;
       });
-    }
+    });
+    // id = 0;
+    // for (const element of loadArr) {
+    //   const load = document.querySelector(element);
+    //   load?.addEventListener("click", () => {
+    //     this.board.loadData(id);
+    //     this.player = this.board.getOnePlayer();
+    //     this.redraw();
+    //     id++;
+    //   });
+    // }
 
     this.createEmojiButton("🚜", () => {
       this.board.harvestPlant(this.player.point);
