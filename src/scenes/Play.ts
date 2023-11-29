@@ -43,6 +43,42 @@ export default class Play extends Phaser.Scene {
       this.redo();
     });
 
+    // const loadfile1 = document.querySelector(`#loadfileButton`);
+    // loadfile1?.addEventListener("click", () => {
+    //   this.board.loadData(1);
+    //   this.player = this.board.getOnePlayer();
+    //   this.redraw();
+    //   // this.onActionClicked();
+    // });
+    const saveArr: string[] = [
+      `#savefile1Button`,
+      `#savefile2Button`,
+      `#savefile3Button`,
+    ];
+    let id = 0;
+    for (const element of saveArr) {
+      const save = document.querySelector(element);
+      save?.addEventListener("click", () => {
+        this.board.saveData(id);
+        id++;
+      });
+    }
+    const loadArr: string[] = [
+      `#loadfile1Button`,
+      `#loadfile2Button`,
+      `#loadfile3Button`,
+    ];
+    id = 0;
+    for (const element of loadArr) {
+      const load = document.querySelector(element);
+      load?.addEventListener("click", () => {
+        this.board.loadData(id);
+        this.player = this.board.getOnePlayer();
+        this.redraw();
+        id++;
+      });
+    }
+
     this.createEmojiButton("🚜", () => {
       this.board.harvestPlant(this.player.point);
     });
@@ -67,7 +103,7 @@ export default class Play extends Phaser.Scene {
     const button = document.querySelector(`#${direction}Button`);
     button?.addEventListener("click", () => {
       this.player.move(dirX, dirY);
-      this.board.plantLayer.setPlayer(
+      this.board.gameState.setPlayer(
         JSON.stringify(this.player.point),
         this.player.id,
       );

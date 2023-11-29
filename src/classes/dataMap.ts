@@ -3,8 +3,8 @@ import { Player } from "./player.ts";
 import { Point } from "./gameWorld.ts";
 
 export class DataMap implements Iterator<Plant> {
-  private gridBuffer: ArrayBuffer;
-  private view: DataView;
+  public gridBuffer: ArrayBuffer;
+  public view: DataView;
   private currentIterationIndex = 0;
 
   public width: number;
@@ -146,6 +146,7 @@ export class DataMap implements Iterator<Plant> {
     }
   }
 
+  // forEach but only for players
   *iteratePlayers(): Generator<Player> {
     let count = 0;
     for (let i = this.PLANT_BUFFER_SIZE; i < this.BUFFER_SIZE; i += 8) {
