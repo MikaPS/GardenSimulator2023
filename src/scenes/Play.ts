@@ -44,6 +44,7 @@ export default class Play extends Phaser.Scene {
         this.loadStateFromID(saveID);
       }
     };
+
     // // Set up event listeners
     // this.button.on("pointerdown", this.onButtonClicked, this);
     // this.gameHistory.push(this.board.exportTo());

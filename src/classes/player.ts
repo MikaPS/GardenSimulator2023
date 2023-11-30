@@ -10,9 +10,14 @@ export class Player {
   }
 
   move(xMove: number, yMove: number) {
-    if (this.point.x < 19 || xMove === -1) {
+    const requestedX = this.point.x + xMove;
+    const requestedY = this.point.y + yMove;
+
+    if (-1 < requestedX && requestedX < 12) {
       this.point.x += xMove;
     }
-    this.point.y += yMove;
+    if (-1 < requestedY && requestedY < 10) {
+      this.point.y += yMove;
+    }
   }
 }
