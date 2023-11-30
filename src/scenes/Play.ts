@@ -12,6 +12,8 @@ export default class Play extends Phaser.Scene {
   gameHistory: string[] = [];
   redoHistory: string[] = [];
 
+  currentSaveFile: number = 0;
+
   lastMove: string = this.board.exportTo();
 
   constructor() {
@@ -21,15 +23,31 @@ export default class Play extends Phaser.Scene {
   preload() {}
 
   create() {
-    let currentSaveFile: number = 0;
+    // save initial state when opening it for the first time
+    if (!localStorage.getItem("firstTimeFlag")) {
+      console.log("here");
+      for (let i = 0; i < 3; i++) {
+        this.board.saveData(i);
+      }
+      localStorage.setItem("currentSaveFile", JSON.stringify(0));
+      localStorage.setItem("firstTimeFlag", "true");
+    }
 
     // Autosave stuff
     window.onbeforeunload = () => {
-      this.board.saveData(currentSaveFile);
+      localStorage.setItem(
+        "currentSaveFile",
+        JSON.stringify(this.currentSaveFile),
+      );
+      this.board.saveData(this.currentSaveFile);
     };
 
     window.onload = () => {
-      this.board.loadData(currentSaveFile);
+      this.currentSaveFile = JSON.parse(
+        localStorage.getItem("currentSaveFile")!,
+      );
+
+      this.board.loadData(this.currentSaveFile);
       this.player = this.board.getOnePlayer();
       this.redraw();
     };
@@ -71,7 +89,7 @@ export default class Play extends Phaser.Scene {
     saveArr.forEach((element, id) => {
       const save = document.querySelector(element);
       save?.addEventListener("click", () => {
-        currentSaveFile = id;
+        this.currentSaveFile = id;
         this.board.saveData(id);
       });
     });
@@ -93,7 +111,7 @@ export default class Play extends Phaser.Scene {
       const load = document.querySelector(element);
       load?.addEventListener("click", () => {
         this.board.loadData(id);
-        currentSaveFile = id;
+        this.currentSaveFile = id;
         this.player = this.board.getOnePlayer();
         this.redraw();
       });
@@ -154,6 +172,7 @@ export default class Play extends Phaser.Scene {
   }
 
   onActionClicked() {
+    this.board.saveData(this.currentSaveFile);
     // Handle button click
     this.gameHistory.push(this.lastMove);
     this.lastMove = this.board.exportTo();

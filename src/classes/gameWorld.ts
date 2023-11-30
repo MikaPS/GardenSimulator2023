@@ -64,7 +64,7 @@ export class GameWorld {
     const inSaved = localStorage.getItem("savedData")!; //get data
 
     // If we dont have saved data
-    if (inSaved == undefined) {
+    if (inSaved == undefined || inSaved === null) {
       // Upload current state
       this.mySavedData[id] = this.gameState;
       const str = this.mySavedData.join("||");
@@ -78,17 +78,52 @@ export class GameWorld {
     // Takes all gridBuffers from the data maps and adds them to a string
     const str = savedData.join("||");
     localStorage.setItem("savedData", str);
+
+    // Save inventory
+    // let inventoryStr: string = "";
+    // const inventoryStr = this.playerInventory
+    //   .map((p) => this.arrayBufferToString(p.exportToByteArray()))
+    //   .join("||");
+
+    // this.playerInventory.forEach((p) => {
+    //   inventoryStr = this.arrayBufferToString(p.exportToByteArray());
+    // });
+    const savedInventoryList: string[] = [];
+    this.playerInventory.forEach((plant) => {
+      const BA = plant.exportToByteArray();
+      const str = this.arrayBufferToString(BA);
+      savedInventoryList.push(str);
+    });
+    localStorage.setItem("inventory" + id, JSON.stringify(savedInventoryList));
   }
 
   // Load data from the local storage
   loadData(id: number) {
     const str = localStorage.getItem("savedData")!;
-    if (str == undefined) {
+    console.log(str);
+    if (str === null) {
       return;
     }
     const savedData = str.split("||");
-    this.gameState.gridBuffer = this.stringToArrayBuffer(savedData[id]);
-    this.gameState.view = new DataView(this.gameState.gridBuffer);
+    if (savedData[id]) {
+      if (!this.isValidBase64(savedData[id])) {
+        return;
+      }
+      this.gameState.gridBuffer = this.stringToArrayBuffer(savedData[id]);
+      this.gameState.view = new DataView(this.gameState.gridBuffer);
+    }
+
+    const inv = localStorage.getItem("inventory" + id);
+    this.playerInventory = [];
+    const inventoryList = JSON.parse(inv!);
+    if (inventoryList.length > 0) {
+      inventoryList.forEach((buff: string) => {
+        const BF = this.stringToArrayBuffer(buff);
+        const plant = new Plant();
+        plant.importFromByteArray(BF);
+        this.playerInventory.push(plant);
+      });
+    }
   }
 
   exportTo() {
@@ -203,6 +238,13 @@ export class GameWorld {
     return bytes.buffer;
   }
 
+  isValidBase64(str: string): boolean {
+    // Regular expression to check if the string is a valid base64-encoded string
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+
+    return base64Regex.test(str);
+  }
+
   getOnePlayer(): Player {
     return this.gameState.getPlayer(0);
     // return this.playerLayer[0];
@@ -291,6 +333,7 @@ export class GameWorld {
     // });
 
     this.playerInventory.forEach((plant: Plant) => {
+      console.log("in draw: ", plant);
       drawArray.push(this.drawPlant(plant, scene));
     });
 
