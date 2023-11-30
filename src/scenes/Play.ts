@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import { GameWorld } from "../classes/gameWorld.ts";
 import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
-
+import { changeSaveFile } from "../main.ts";
 export default class Play extends Phaser.Scene {
   // private buttonSize = 35;
   board: GameWorld = new GameWorld();
@@ -59,6 +59,7 @@ export default class Play extends Phaser.Scene {
     saveArr.forEach((element, id) => {
       const save = document.querySelector(element);
       save?.addEventListener("click", () => {
+        changeSaveFile(id);
         this.board.saveData(id);
       });
     });
@@ -80,6 +81,7 @@ export default class Play extends Phaser.Scene {
       const load = document.querySelector(element);
       load?.addEventListener("click", () => {
         this.board.loadData(id);
+        changeSaveFile(id);
         this.player = this.board.getOnePlayer();
         this.redraw();
       });
