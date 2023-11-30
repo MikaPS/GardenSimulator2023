@@ -63,61 +63,32 @@ export class GameWorld {
     console.log("id is: ", id);
     const inSaved = localStorage.getItem("savedData")!; //get data
 
+    // If we dont have saved data
     if (inSaved == undefined) {
-      console.log("asjbdasj");
+      // Upload current state
       this.mySavedData[id] = this.gameState;
-      let str = this.mySavedData.join("||");
+      const str = this.mySavedData.join("||");
       localStorage.setItem("savedData", str);
       return;
     }
+    // If we have data, parse it with split
     const savedData: string[] = inSaved.split("||");
-    savedData[id] = this.arrayBufferToBase64(this.gameState.gridBuffer);
+    savedData[id] = this.arrayBufferToString(this.gameState.gridBuffer);
 
     // Takes all gridBuffers from the data maps and adds them to a string
-    let str = savedData.join("||");
-    console.log("already have data: ", savedData.length);
+    const str = savedData.join("||");
     localStorage.setItem("savedData", str);
   }
-  // saveData(id: number) {
-  //   console.log("id is: ", id);
-  //   const inSaved = localStorage.getItem("savedData")!; //get data
-  //   this.mySavedData[id] = this.gameState;
-
-  //   if (inSaved == undefined) {
-  //     //check data
-  //     //this is just what it used to be
-  //     // this.mySavedData[id] = this.gameState;
-  //     let str = "";
-  //     this.mySavedData.forEach((key) => {
-  //       str += this.arrayBufferToBase64(key.gridBuffer) + "||";
-  //     });
-  //     console.log("dont have data: ", this.mySavedData.length);
-
-  //     localStorage.setItem("savedData", str);
-  //     return;
-  //   }
-  //   const savedData: string[] = inSaved.split("||");
-  //   savedData[id] = this.arrayBufferToBase64(this.gameState.gridBuffer);
-  //   // this.mySavedData = this.arrayBufferToBase64(this.gameState.gridBuffer);
-  //   // Takes all gridBuffers from the data maps and adds them to a string
-  //   let str = "";
-  //   savedData.forEach((key) => {
-  //     str += key + "||";
-  //   });
-  //   console.log("already have data: ", savedData.length);
-  //   localStorage.setItem("savedData", str);
-  //   // console.log("save data: ", this.mySavedData[id]);
-  // }
 
   // Load data from the local storage
   loadData(id: number) {
-    console.log("id is: ", id);
     const str = localStorage.getItem("savedData")!;
     if (str == undefined) {
       return;
     }
     const savedData = str.split("||");
-    this.gameState.gridBuffer = this.base64ToArrayBuffer(savedData[id]);
+    this.gameState.gridBuffer = this.stringToArrayBuffer(savedData[id]);
+    this.gameState.view = new DataView(this.gameState.gridBuffer);
   }
 
   exportTo() {
@@ -128,7 +99,7 @@ export class GameWorld {
 
       const BA = plant.exportToByteArray();
 
-      savedPlantMap.set(key, this.arrayBufferToBase64(BA));
+      savedPlantMap.set(key, this.arrayBufferToString(BA));
     });
 
     const savedPlayerList: Point[] = [];
@@ -142,7 +113,7 @@ export class GameWorld {
     const savedInventoryList: string[] = [];
     this.playerInventory.forEach((plant) => {
       const BA = plant.exportToByteArray();
-      const str = this.arrayBufferToBase64(BA);
+      const str = this.arrayBufferToString(BA);
       savedInventoryList.push(str);
     });
 
@@ -176,7 +147,7 @@ export class GameWorld {
 
     if (gameStateList.size > 0) {
       gameStateList.forEach((buff: string, key: string) => {
-        const BF = this.base64ToArrayBuffer(buff);
+        const BF = this.stringToArrayBuffer(buff);
         const plant = new Plant();
         plant.importFromByteArray(BF);
         this.gameState.set(key, plant);
@@ -188,7 +159,7 @@ export class GameWorld {
     const inventoryList = JSON.parse(saveState.playerInventory);
     if (inventoryList.length > 0) {
       inventoryList.forEach((buff: string) => {
-        const BF = this.base64ToArrayBuffer(buff);
+        const BF = this.stringToArrayBuffer(buff);
         const plant = new Plant();
         plant.importFromByteArray(BF);
         this.playerInventory.push(plant);
@@ -214,7 +185,7 @@ export class GameWorld {
     this.time = saveState.time;
   }
   // Convert ArrayBuffer to base64 string
-  arrayBufferToBase64(buffer: ArrayBuffer): string {
+  arrayBufferToString(buffer: ArrayBuffer): string {
     const binary = new Uint8Array(buffer);
     const byteArray = Array.from(binary);
     const base64 = btoa(String.fromCharCode.apply(null, byteArray));
@@ -222,7 +193,7 @@ export class GameWorld {
   }
 
   // Convert base64 string back to ArrayBuffer
-  base64ToArrayBuffer(base64: string): ArrayBuffer {
+  stringToArrayBuffer(base64: string): ArrayBuffer {
     const binaryString = window.atob(base64);
     const binaryLen = binaryString.length;
     const bytes = new Uint8Array(binaryLen);
