@@ -212,7 +212,8 @@ export default class Play extends Phaser.Scene {
   }
 
   onActionClicked() {
-    //this.board.saveData(this.currentSaveFile);
+    this.saveStateToID(-1);
+
     // Handle button click
     this.gameHistory.push(this.lastMove);
     this.lastMove = this.board.exportTo();
