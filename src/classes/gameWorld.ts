@@ -27,7 +27,7 @@ export class GameWorld {
     this.width,
     this.height,
     BUFFER_SIZE,
-    8 * (this.numPlayers + 1),
+    this.numPlayers + 1,
   );
   // private view = new DataView(this.gameState);
   //gameState = new Map<string, Plant>();
@@ -48,85 +48,24 @@ export class GameWorld {
   constructor() {
     for (let i: number = 0; i < 3; i++) {
       this.mySavedData.push(
-        new DataMap(
-          this.width,
-          this.height,
-          BUFFER_SIZE,
-          8 * (this.numPlayers + 1),
-        ),
+        new DataMap(this.width, this.height, BUFFER_SIZE, this.numPlayers + 1),
       );
     }
   }
 
   // LOCAL STORAGE
   saveData(id: number) {
-    console.log("id is: ", id);
-    const inSaved = localStorage.getItem("savedData")!; //get data
-
-    // If we dont have saved data
-    if (inSaved == undefined || inSaved === null) {
-      // Upload current state
-      this.mySavedData[id] = this.gameState;
-      const str = this.mySavedData.join("||");
-      localStorage.setItem("savedData", str);
-      return;
-    }
-    // If we have data, parse it with split
-    const savedData: string[] = inSaved.split("||");
-    savedData[id] = this.arrayBufferToString(this.gameState.gridBuffer);
-
-    // Takes all gridBuffers from the data maps and adds them to a string
-    const str = savedData.join("||");
-    localStorage.setItem("savedData", str);
-
-    // Save inventory
-    // let inventoryStr: string = "";
-    // const inventoryStr = this.playerInventory
-    //   .map((p) => this.arrayBufferToString(p.exportToByteArray()))
-    //   .join("||");
-
-    // this.playerInventory.forEach((p) => {
-    //   inventoryStr = this.arrayBufferToString(p.exportToByteArray());
-    // });
-    const savedInventoryList: string[] = [];
-    this.playerInventory.forEach((plant) => {
-      const BA = plant.exportToByteArray();
-      const str = this.arrayBufferToString(BA);
-      savedInventoryList.push(str);
-    });
-    localStorage.setItem("inventory" + id, JSON.stringify(savedInventoryList));
+    const dataString = this.exportTo();
+    localStorage.setItem(JSON.stringify(id), dataString);
   }
 
   // Load data from the local storage
   loadData(id: number) {
-    const str = localStorage.getItem("savedData")!;
-    console.log(str);
-    if (str === null) {
-      return;
-    }
-    const savedData = str.split("||");
-    if (savedData[id]) {
-      if (!this.isValidBase64(savedData[id])) {
-        return;
-      }
-      this.gameState.gridBuffer = this.stringToArrayBuffer(savedData[id]);
-      this.gameState.view = new DataView(this.gameState.gridBuffer);
-    }
-
-    const inv = localStorage.getItem("inventory" + id);
-    this.playerInventory = [];
-    const inventoryList = JSON.parse(inv!);
-    if (inventoryList.length > 0) {
-      inventoryList.forEach((buff: string) => {
-        const BF = this.stringToArrayBuffer(buff);
-        const plant = new Plant();
-        plant.importFromByteArray(BF);
-        this.playerInventory.push(plant);
-      });
-    }
+    const dataString = localStorage.getItem(JSON.stringify(id))!;
+    this.importFrom(dataString);
   }
 
-  exportTo() {
+  exportTo(): string {
     //Export gameState - Has to be an array of byte arrays
     const savedPlantMap = new Map<string, string>();
     this.gameState.forEach((plant) => {
@@ -209,10 +148,6 @@ export class GameWorld {
       this.gameState.setPlayer(JSON.stringify(p), i);
       this.numPlayers += 1;
     });
-    // this.playerLayer = [];
-    // points.forEach((p: Point, i: number) => {
-    //   this.playerLayer.push(new Player(p, i));
-    // });
 
     //import world stats
     this.sunMod = saveState.sunMod;
@@ -312,7 +247,7 @@ export class GameWorld {
 
   createPlayer(point: Point) {
     const newPlayer = new Player(point, this.numPlayers);
-    // // this.playerLayer.push(newPlayer);
+    // this.playerLayer.push(newPlayer);
     const key = JSON.stringify(point);
     this.gameState.setPlayer(key, this.numPlayers);
     this.numPlayers += 1;
@@ -328,12 +263,8 @@ export class GameWorld {
     for (const player of this.gameState.iteratePlayers()) {
       drawArray.push(this.drawPlayer(player, scene));
     }
-    // this.playerLayer.forEach((player) => {
-    //   drawArray.push(this.drawPlayer(player, scene));
-    // });
 
     this.playerInventory.forEach((plant: Plant) => {
-      console.log("in draw: ", plant);
       drawArray.push(this.drawPlant(plant, scene));
     });
 
