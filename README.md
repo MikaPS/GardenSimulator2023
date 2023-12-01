@@ -14,15 +14,7 @@ F1 Requirements:
 - **[F1.a] The important state of each cell of your game’s grid must be backed by a single contiguous byte array in AoS or SoA format. Your team must statically allocate memory usage for the whole grid.**
   We create a DataMap class that holds a single contiguous byte array that we use to allocate memory for the entire grid. Using dataview, we created a wrapper around the byte array so we could use regular functions on it (set, get, forEach, etc). Each location on the grid correlates to a buffer location which we get using this function: getBufferLocation(). We set the dataview at this buffer location to either 0 if we don't have a plant or to an array buffer that represents the plant. After going through all grid locations, we add the player to the byte array (save its location and ID in case we have multiple players).
 
-//
-For the F1.a requirement, your team must describe your byte array format as either Structure-of-Arrays or Array-of-Structures (or some mixture of these). You must also use an embedded image to illustrate your memory allocation strategy.
-
-Here's an example data packing diagram explaining how several data fields are arranged in the header of IPv4Links to an external site. packets.
-
-640px-IPv4_Packet-en.svg.png
-
-To embed an image into your devlog, add the image to your repository using git. Then, in the markdown code of your devlog entry, use an expression like "![F1.a data structure diagram](./f1_a_diagram.png)" to make it so the image will render in place when your markdown code is converted into HTML for display on the GitHub site.
-//
+![F1.a data structure diagram](./arraybuffer.png)
 
 - **[F1.b] The player must be able to undo every major choice (all the way back to the start of play), even from a saved game. They should be able to redo (undo of undo operations) multiple times.**
   We have undo and redo buttons that are available to the players. In the Play.ts file, we have two arrays that save each change that happens to the game. By keeping track of the player's previous actions, we allow them to undo every major choice in the game.
