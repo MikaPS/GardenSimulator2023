@@ -103,13 +103,13 @@ export default class Play extends Phaser.Scene {
   createUndoButton() {
     const undoButton = document.querySelector(`#undoButton`);
     undoButton?.addEventListener("click", () => {
-      this.undo();
+      this.performUndoRedo(this.gameHistory, this.redoHistory);
     });
   }
   createRedoButton() {
     const redoButton = document.querySelector(`#redoButton`);
     redoButton?.addEventListener("click", () => {
-      this.redo();
+      this.performUndoRedo(this.redoHistory, this.gameHistory);
     });
   }
 
@@ -286,6 +286,18 @@ export default class Play extends Phaser.Scene {
     document.body.appendChild(button);
 
     return button;
+  }
+
+  private performUndoRedo(historyList: string[], oppositeList: string[]) {
+    if (historyList.length == 0) {
+      return;
+    }
+
+    const recent = historyList.pop()!;
+    oppositeList.push(this.board.exportTo());
+    this.board.importFrom(recent);
+    this.player = this.board.getOnePlayer();
+    this.redraw();
   }
 
   //Called every tick
