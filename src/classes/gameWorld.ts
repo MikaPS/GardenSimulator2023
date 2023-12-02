@@ -85,7 +85,6 @@ export class GameWorld {
   importFrom(state: string) {
     const saveState: SaveState = JSON.parse(state);
 
-    //Import Plants
     this.gameState = new DataMap(
       this.width,
       this.height,
@@ -93,47 +92,24 @@ export class GameWorld {
       this.numPlayers,
     );
 
-    // this.gameState = new Map<string, Plant>();
     let gameStateList: Map<string, string> = JSON.parse(saveState.gameState);
     gameStateList = new Map(gameStateList);
-    // let gameStateList: DataMap = JSON.parse(saveState.gameState);
-    // gameStateList = new DataMap(this.width, this.height, BUFFER_SIZE);
 
-    if (gameStateList.size > 0) {
-      gameStateList.forEach((buff: string, key: string) => {
-        const BF = this.stringToArrayBuffer(buff);
-        const plant = new Plant();
-        plant.importFromByteArray(BF);
-        this.gameState.set(key, plant);
-      });
-    }
+    // import plants
+    this.importPlants(gameStateList);
 
-    //List of base64 strings
-    this.playerInventory = [];
-    const inventoryList = JSON.parse(saveState.playerInventory);
-    if (inventoryList.length > 0) {
-      inventoryList.forEach((buff: string) => {
-        const BF = this.stringToArrayBuffer(buff);
-        const plant = new Plant();
-        plant.importFromByteArray(BF);
-        this.playerInventory.push(plant);
-      });
-    }
+    // import Inventory
+    this.importInventory(saveState.playerInventory);
 
     //Import Players
-    const points = JSON.parse(saveState.playerPoints);
-    this.gameState.deletePlayers();
-    this.numPlayers = 0;
-    points.forEach((p: Point, i: number) => {
-      this.gameState.setPlayer(JSON.stringify(p), i);
-      this.numPlayers += 1;
-    });
+    this.importPlayers(saveState.playerPoints);
 
     //import world stats
     this.sunMod = saveState.sunMod;
     this.waterMod = saveState.waterMod;
     this.time = saveState.time;
   }
+
   // Convert ArrayBuffer to base64 string
   arrayBufferToString(buffer: ArrayBuffer): string {
     const binary = new Uint8Array(buffer);
@@ -324,5 +300,39 @@ export class GameWorld {
     });
 
     return savedInventoryList;
+  }
+
+  private importPlants(gameStateMap: Map<string, string>) {
+    if (gameStateMap.size > 0) {
+      gameStateMap.forEach((buff: string, key: string) => {
+        const BF = this.stringToArrayBuffer(buff);
+        const plant = new Plant();
+        plant.importFromByteArray(BF);
+        this.gameState.set(key, plant);
+      });
+    }
+  }
+
+  private importInventory(saveStateInventoryString: string) {
+    this.playerInventory = [];
+    const inventoryList = JSON.parse(saveStateInventoryString);
+    if (inventoryList.length > 0) {
+      inventoryList.forEach((buff: string) => {
+        const BF = this.stringToArrayBuffer(buff);
+        const plant = new Plant();
+        plant.importFromByteArray(BF);
+        this.playerInventory.push(plant);
+      });
+    }
+  }
+
+  private importPlayers(playerPointString: string) {
+    const points = JSON.parse(playerPointString);
+    this.gameState.deletePlayers();
+    this.numPlayers = 0;
+    points.forEach((p: Point, i: number) => {
+      this.gameState.setPlayer(JSON.stringify(p), i);
+      this.numPlayers += 1;
+    });
   }
 }
