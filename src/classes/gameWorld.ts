@@ -67,29 +67,9 @@ export class GameWorld {
 
   exportTo(): string {
     //Export gameState - Has to be an array of byte arrays
-    const savedPlantMap = new Map<string, string>();
-    this.gameState.forEach((plant) => {
-      const key = plant.getKey();
-
-      const BA = plant.exportToByteArray();
-
-      savedPlantMap.set(key, this.arrayBufferToString(BA));
-    });
-
-    const savedPlayerList: Point[] = [];
-    for (const player of this.gameState.iteratePlayers()) {
-      savedPlayerList.push(player.point);
-    }
-    // this.playerLayer.forEach((player) => {
-    //   savedPlayerList.push(player.point);
-    // });
-
-    const savedInventoryList: string[] = [];
-    this.playerInventory.forEach((plant) => {
-      const BA = plant.exportToByteArray();
-      const str = this.arrayBufferToString(BA);
-      savedInventoryList.push(str);
-    });
+    const savedPlantMap = this.exportPlants();
+    const savedPlayerList = this.exportPlayers();
+    const savedInventoryList = this.exportInventory();
 
     const saveState: SaveState = {
       gameState: JSON.stringify(Array.from(savedPlantMap)),
@@ -307,5 +287,42 @@ export class GameWorld {
 
   haveWon() {
     return this.playerInventory.length > this.winAmount;
+  }
+
+  private exportPlants() {
+    const savedPlantMap = new Map<string, string>();
+    this.gameState.forEach((plant) => {
+      const key = plant.getKey();
+
+      const BA = plant.exportToByteArray();
+
+      savedPlantMap.set(key, this.arrayBufferToString(BA));
+    });
+
+    const savedPlayerList: Point[] = [];
+    for (const player of this.gameState.iteratePlayers()) {
+      savedPlayerList.push(player.point);
+    }
+    return savedPlantMap;
+  }
+
+  private exportPlayers() {
+    const savedPlayerList: Point[] = [];
+    for (const player of this.gameState.iteratePlayers()) {
+      savedPlayerList.push(player.point);
+    }
+
+    return savedPlayerList;
+  }
+
+  private exportInventory() {
+    const savedInventoryList: string[] = [];
+    this.playerInventory.forEach((plant) => {
+      const BA = plant.exportToByteArray();
+      const str = this.arrayBufferToString(BA);
+      savedInventoryList.push(str);
+    });
+
+    return savedInventoryList;
   }
 }
