@@ -29,10 +29,6 @@ export class GameWorld {
     BUFFER_SIZE,
     this.numPlayers + 1,
   );
-  // private view = new DataView(this.gameState);
-  //gameState = new Map<string, Plant>();
-
-  // playerLayer: Player[] = [];
 
   //Background layer
   playerInventory: Plant[] = [];
@@ -71,6 +67,7 @@ export class GameWorld {
     const savedPlayerList = this.exportPlayers();
     const savedInventoryList = this.exportInventory();
 
+    // export save state
     const saveState: SaveState = {
       gameState: JSON.stringify(Array.from(savedPlantMap)),
       playerPoints: JSON.stringify(savedPlayerList),
@@ -82,6 +79,7 @@ export class GameWorld {
 
     return JSON.stringify(saveState);
   }
+
   importFrom(state: string) {
     const saveState: SaveState = JSON.parse(state);
 
@@ -95,13 +93,8 @@ export class GameWorld {
     let gameStateList: Map<string, string> = JSON.parse(saveState.gameState);
     gameStateList = new Map(gameStateList);
 
-    // import plants
     this.importPlants(gameStateList);
-
-    // import Inventory
     this.importInventory(saveState.playerInventory);
-
-    //Import Players
     this.importPlayers(saveState.playerPoints);
 
     //import world stats
@@ -138,7 +131,6 @@ export class GameWorld {
 
   getOnePlayer(): Player {
     return this.gameState.getPlayer(0);
-    // return this.playerLayer[0];
   }
 
   placePlant(point: Point, plantType: PlantType) {
@@ -203,7 +195,6 @@ export class GameWorld {
 
   createPlayer(point: Point) {
     const newPlayer = new Player(point, this.numPlayers);
-    // this.playerLayer.push(newPlayer);
     const key = JSON.stringify(point);
     this.gameState.setPlayer(key, this.numPlayers);
     this.numPlayers += 1;
@@ -211,7 +202,6 @@ export class GameWorld {
   }
 
   drawTo(scene: Phaser.Scene): Phaser.GameObjects.Text[] {
-    //backgroudLayer.foreach()
     const drawArray: Phaser.GameObjects.Text[] = [];
     this.gameState.forEach((plant: Plant) => {
       drawArray.push(this.drawPlant(plant, scene));
@@ -225,6 +215,10 @@ export class GameWorld {
     });
 
     return drawArray;
+  }
+
+  haveWon() {
+    return this.playerInventory.length > this.winAmount;
   }
 
   private drawPlant(
@@ -259,10 +253,6 @@ export class GameWorld {
     //Max is 15?
     const max = 14;
     return max - max * plant.getGrowPercentage();
-  }
-
-  haveWon() {
-    return this.playerInventory.length > this.winAmount;
   }
 
   private exportPlants() {

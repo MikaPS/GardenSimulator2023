@@ -4,7 +4,6 @@ import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
 
 export default class Play extends Phaser.Scene {
-  // private buttonSize = 35;
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
   drawnElements: Phaser.GameObjects.Text[] = [];
@@ -46,8 +45,6 @@ export default class Play extends Phaser.Scene {
     };
 
     // // Set up event listeners
-    // this.button.on("pointerdown", this.onButtonClicked, this);
-    // this.gameHistory.push(this.board.exportTo());
     this.redraw();
 
     //Rectangle for inventory
@@ -162,6 +159,7 @@ export default class Play extends Phaser.Scene {
       document.body.appendChild(load);
     });
   }
+
   loadStateFromID(id: number) {
     this.board.loadData(id);
     this.currentSaveFile = id;
@@ -235,31 +233,6 @@ export default class Play extends Phaser.Scene {
     const recent = history1.pop()!;
     history2.push(recent);
 
-    this.board.importFrom(recent);
-    this.player = this.board.getOnePlayer();
-    this.redraw();
-  }
-
-  undo() {
-    if (this.gameHistory.length == 0) {
-      return;
-    }
-
-    const recent = this.gameHistory.pop()!;
-    this.redoHistory.push(this.board.exportTo());
-
-    this.board.importFrom(recent);
-    this.player = this.board.getOnePlayer();
-    this.redraw();
-  }
-
-  redo() {
-    if (this.redoHistory.length == 0) {
-      return;
-    }
-
-    const recent = this.redoHistory.pop()!;
-    this.gameHistory.push(this.board.exportTo());
     this.board.importFrom(recent);
     this.player = this.board.getOnePlayer();
     this.redraw();
