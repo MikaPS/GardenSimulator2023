@@ -8,6 +8,11 @@ export interface Point {
   y: number;
 }
 
+export interface WinPair {
+  plant: PlantType;
+  amount: number;
+}
+
 interface SaveState {
   gameState: string;
   playerPoints: string;
@@ -38,7 +43,6 @@ export class GameWorld {
   event = new Event("updating-board");
 
   private padding = { x: 0, y: 3 };
-  private winAmount = 5;
 
   mySavedData: DataMap[] = [];
   constructor() {
@@ -123,7 +127,7 @@ export class GameWorld {
   }
 
   isValidBase64(str: string): boolean {
-    // Regular expression to check if the string is a valid base64-encoded string
+    // check if the string is a valid base64-encoded string
     const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
 
     return base64Regex.test(str);
@@ -217,8 +221,33 @@ export class GameWorld {
     return drawArray;
   }
 
-  haveWon() {
-    return this.playerInventory.length > this.winAmount;
+  haveWon(winningCondition: WinPair[]): boolean {
+    const countMap = new Map<PlantType, number>();
+
+    this.playerInventory.forEach((plant: Plant) => {
+      if (countMap.has(plant.plantType)) {
+        let val = countMap.get(plant.plantType)!;
+        val++;
+        countMap.set(plant.plantType, val);
+      } else {
+        countMap.set(plant.plantType, 1);
+      }
+    });
+    console.log("In haveWon: ", countMap);
+    let hasWon = true;
+
+    winningCondition.forEach((condition: WinPair) => {
+      const plantType = condition.plant;
+      const amount = condition.amount;
+      if (
+        countMap.get(plantType) === undefined ||
+        countMap.get(plantType)! < amount
+      ) {
+        hasWon = false;
+        return;
+      }
+    });
+    return hasWon;
   }
 
   private drawPlant(

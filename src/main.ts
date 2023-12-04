@@ -16,9 +16,11 @@ document.body.style.backgroundColor = "#6F4E37";
 
 document.body.appendChild(document.createElement("br"));
 
-createMovementButtons();
+const buttonHolder = document.createElement("div");
+buttonHolder.id = "ButtonHolder";
+document.body.appendChild(buttonHolder);
 
-function createMovementButtons() {
+export function createMovementButtons() {
   const buttons = [
     "⬅️",
     "⬆️",
@@ -37,6 +39,6 @@ function createMovementButtons() {
     const button = document.createElement("button");
     button.innerHTML = direction;
     button.id = direction + "Button";
-    document.body.appendChild(button);
+    buttonHolder.appendChild(button);
   });
 }

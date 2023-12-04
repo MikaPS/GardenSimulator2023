@@ -1,15 +1,23 @@
 import * as Phaser from "phaser";
+import * as yaml from "js-yaml";
+// import * as fs from "fs";
+// import scenarioContent from "../scenarios/scenrio.yaml";
+
 import { GameWorld } from "../classes/gameWorld.ts";
 import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
+import { WinPair } from "../classes/gameWorld.ts";
+import { createMovementButtons } from "../main.ts";
 
 export default class Play extends Phaser.Scene {
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
   drawnElements: Phaser.GameObjects.Text[] = [];
-
+  currentLevel: string = "0";
   gameHistory: string[] = [];
   redoHistory: string[] = [];
+  availablePlants: PlantType[] = [];
+  winCondition: WinPair[] = [];
 
   currentSaveFile: number = 0;
 
@@ -19,7 +27,9 @@ export default class Play extends Phaser.Scene {
     super("play");
   }
 
-  preload() {}
+  preload() {
+    this.load.text("yamlData", "src/scenarios/scenario.yaml");
+  }
 
   create() {
     // save initial state when opening it for the first time
@@ -44,29 +54,59 @@ export default class Play extends Phaser.Scene {
       }
     };
 
-    // // Set up event listeners
-    this.redraw();
-
-    //Rectangle for inventory
     this.add.rectangle(590, 0, 50, 700, 0x000000).setOrigin(0, 0);
 
+    this.loadLevel(this.currentLevel);
+    this.createInterface();
+    this.redraw();
+  }
+
+  nextLevel() {
+    this.currentLevel = (Number(this.currentLevel) + 1).toString();
+    this.loadLevel(this.currentLevel);
+    this.createInterface();
+    this.redraw();
+  }
+
+  loadLevel(levelName: string) {
+    this.setLevelData(levelName);
+    this.board = new GameWorld();
+    this.deleteDrawings();
+    this.gameHistory = [];
+    this.redoHistory = [];
+    this.player = this.board.createPlayer({ x: 0, y: 0 });
+  }
+
+  setLevelData(levelName: string) {
+    // Read from YAML file
+    const yamlContent = this.cache.text.get("yamlData");
+
+    // Parse YAML content
+    const data: Record<string, any> = yaml.load(yamlContent)!;
+    const level = data[levelName];
+    this.availablePlants = level["available_plants"];
+    this.winCondition = this.findWinPairs(level);
+  }
+
+  createInterface() {
+    this.deleteAllButtons();
+    createMovementButtons();
     this.addDirectionButton("⬅️", -1, 0);
     this.addDirectionButton("➡️", 1, 0);
     this.addDirectionButton("⬆️", 0, -1);
     this.addDirectionButton("⬇️", 0, 1);
+    this.newLine();
 
     this.createUndoButton();
     this.createRedoButton();
 
+    this.createPlantButtons(this.availablePlants);
+    this.newLine();
     this.createEmojiButton("🚜", () => {
       this.board.harvestPlant(this.player.point);
     });
 
     this.createEmojiButton("🕰️", () => {});
-
-    this.newLine();
-
-    this.createPlantButtons();
 
     this.newLine();
     this.createSaveButtons();
@@ -78,14 +118,25 @@ export default class Play extends Phaser.Scene {
     this.createTrashButton();
   }
 
-  newLine() {
-    document.body.appendChild(document.createElement("br"));
+  findWinPairs(level: Record<string, any>): WinPair[] {
+    const winCondition = level["win_conditions"];
+    const winPairs: WinPair[] = [];
+
+    console.log(this.board.playerInventory);
+    winCondition.forEach((w: [PlantType, number]) => {
+      const winPair = { plant: w[0], amount: w[1] };
+      winPairs.push(winPair);
+    });
+    return winPairs;
   }
 
-  createPlantButtons() {
-    for (const key in plantTypeToEmoji) {
-      this.addPlantButton(key as PlantType);
-    }
+  newLine() {
+    this.appendToPage(document.createElement("br"));
+  }
+  createPlantButtons(plantList: PlantType[]) {
+    plantList.forEach((plant: PlantType) => {
+      this.addPlantButton(plant);
+    });
   }
 
   createTrashButton() {
@@ -94,7 +145,7 @@ export default class Play extends Phaser.Scene {
     trashButton.addEventListener("click", () => {
       localStorage.clear();
     });
-    document.body.appendChild(trashButton);
+    this.appendToPage(trashButton);
   }
 
   createUndoButton() {
@@ -122,7 +173,7 @@ export default class Play extends Phaser.Scene {
       save.addEventListener("click", () => {
         this.saveStateToID(id);
       });
-      document.body.appendChild(save);
+      this.appendToPage(save);
     });
   }
 
@@ -156,7 +207,7 @@ export default class Play extends Phaser.Scene {
       load.addEventListener("click", () => {
         this.loadStateFromID(id);
       });
-      document.body.appendChild(load);
+      this.appendToPage(load);
     });
   }
 
@@ -207,7 +258,7 @@ export default class Play extends Phaser.Scene {
       this.onActionClicked();
     });
 
-    document.body.appendChild(button);
+    this.appendToPage(button);
   }
 
   onActionClicked() {
@@ -219,8 +270,15 @@ export default class Play extends Phaser.Scene {
 
     this.redoHistory = [];
 
-    if (this.board.haveWon()) {
-      this.add.text(50, 50, "YOU WON\n!1!!1!!1!!!!").setFontSize("100pt");
+    if (this.board.haveWon(this.winCondition)) {
+      const winText = this.add
+        .text(50, 50, "YOU WON\n!1!!1!!1!!!!")
+        .setFontSize("100pt");
+
+      setTimeout(() => {
+        winText.text = "";
+        this.nextLevel();
+      }, 2000);
     }
     this.board.changeTime();
     this.redraw();
@@ -256,9 +314,18 @@ export default class Play extends Phaser.Scene {
       callback();
       this.onActionClicked();
     });
-    document.body.appendChild(button);
+    this.appendToPage(button);
 
     return button;
+  }
+  appendToPage(elem: HTMLElement | Element) {
+    const buttonHolder = document.getElementById("ButtonHolder");
+    buttonHolder?.appendChild(elem);
+  }
+
+  deleteAllButtons() {
+    const buttonHolder = document.getElementById("ButtonHolder")!;
+    buttonHolder.innerHTML = "";
   }
 
   private performUndoRedo(historyList: string[], oppositeList: string[]) {

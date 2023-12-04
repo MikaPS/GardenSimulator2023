@@ -22,6 +22,19 @@ export const plantTypeToEmoji: Record<PlantType, string> = {
 
 export const BUFFER_SIZE: number = 25;
 
+export interface growthContext {
+  nearBySamePlants: number;
+  nearByDifferentPlants: number;
+  sunLevel: number;
+  waterLevel: number;
+}
+
+export interface PlantDefinitionLanguage {
+  name(name: string): void;
+  emoji(emoji: string): void;
+  growsWhen(growsWhen: (context: growthContext) => boolean): void;
+}
+
 export class Plant {
   private buffer = new ArrayBuffer(BUFFER_SIZE);
   private view = new DataView(this.buffer);
@@ -89,6 +102,7 @@ export class Plant {
     ] as PlantType;
     return pType;
   }
+
   set plantType(val: PlantType) {
     const pType = plantTypeNumbers[val] as number;
     this.view.setUint8(this.PLANT_TYPE_POS, pType);
