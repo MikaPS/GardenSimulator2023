@@ -13,16 +13,19 @@ import * as yaml from "js-yaml";
 // }
 
 export default class PreloaderScene extends Phaser.Scene {
+  private yamlFile!: Phaser.Loader.FileTypes.TextFile;
+
   constructor() {
     super("PreloaderScene");
   }
 
   preload() {
     // Load the YAML file
-    this.load.text("yamlData", "/assets/scenario.yaml");
+    this.load.text("yamlData", "/assets/scenario.yaml")!;
   }
 
   create() {
+    console.log(this.yamlFile);
     // Extract the YAML data
     const yamlData = this.cache.text.get("yamlData");
     const data: Record<string, any> = yaml.load(yamlData)!;

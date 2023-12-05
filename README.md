@@ -10,7 +10,7 @@
 
 ## How we satisfied the software requirements
 
-#### F2 Requirements:
+# F2 Requirements:
 
 ### External DSL for Scenario Design
 
@@ -83,7 +83,7 @@ We decided to use an internal DSL instead of an external DSL because of the capa
 
 We reconsidered the growth conditions of each plant type to diversify them more so we can use an internal DSL to define them. With the inclusion plant definitions, we removed many fields in plant class as they became repetitive. Moreover, in previous versions, the winning conditions just checked the total number of plants in the inventory. Now the player will need to get a specific amount of each plant to progress to the next level. Thankfully, we didn't have to make too many different to our code, we mainly had to redesign the structure of the game.
 
-#### F1 Requirements (no major changes):
+# F1 Requirements (no major changes):
 
 - **[F1.a] The important state of each cell of your game’s grid must be backed by a single contiguous byte array in AoS or SoA format. Your team must statically allocate memory usage for the whole grid.**
   We create a DataMap class that holds a single contiguous byte array that we use to allocate memory for the entire grid. Using dataview, we created a wrapper around the byte array so we could use regular functions on it (set, get, forEach, etc). Each location on the grid correlates to a buffer location which we get using this function: getBufferLocation(). We set the dataview at this buffer location to either 0 if we don't have a plant or to an array buffer that represents the plant. After going through all grid locations, we add the player to the byte array (save its location and ID in case we have multiple players). We have an AoS structure for the byte array where we save the information of each plant based on their position on the grid, so we have the full information of one location on the grid and then we save the information of the next cell.
@@ -99,7 +99,7 @@ We reconsidered the growth conditions of each plant type to diversify them more 
 - **[F1.d] The game must implement an implicit auto-save system to support recovery from unexpected quits. (For example, when the game is launched, if an auto-save entry is present, the game might ask the player "do you want to continue where you left off?" The auto-save entry might or might not be visible among the list of manual save entries available for the player to load as part of F1.c.)**<br>
   Upon closing a window, the game saves itself into one of the three save files. If the player last interacted with something in save file 1, we would automatically save the changes into that file. If the player opened the game for the first time, we use a default save file. Not only that, but upon opening the window, that last progress is restored and displayed on the screen.
 
-#### F0 requirements are the same as last week:
+# F0 requirements are the same as last week:
 
 - **[F0.a] You control a character moving on a 2D grid** <br>
   We have a set of keys on the bottom of the screen, each arrow corresponds to a direction that you can move your character. We do by having a player class with a position field and a method that moves the player based on a given direction. This satisfies the requirements because the character can move in two dimensions, left or right, and up and down.
