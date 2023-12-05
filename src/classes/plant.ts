@@ -87,7 +87,6 @@ export class InternalPlant {
     return this.view.getUint8(PLANT_TYPE_POS);
   }
   set plantID(id: number) {
-    // this.id = id;
     this.view.setUint8(PLANT_TYPE_POS, id);
   }
 
@@ -95,24 +94,28 @@ export class InternalPlant {
     return JSON.stringify(this.point);
   }
 
+  //return full buffer for saving
   exportToByteArray(): ArrayBuffer {
     return this.buffer;
   }
 
+  //import full buffer for loading
   importFromByteArray(byteArray: ArrayBuffer) {
     this.buffer = byteArray;
     this.view = new DataView(this.buffer);
   }
 
+  //takes a context and changes level based that
   levelUp(ctx: GrowthContext) {
     if (this.canLevelUp(ctx)) {
       const v = this.clamp(0, this.maxLevel, this.currentLevel + 1);
       this.currentLevel = v;
     }
   }
-
+  //place holder to be changed by plantDefinitions
   canLevelUp: (context: GrowthContext) => boolean = (_ctx) => false;
 
+  //Clamps val between the min and max
   clamp(min: number, max: number, val: number) {
     return Math.max(min, Math.min(max, val));
   }
@@ -121,6 +124,7 @@ export class InternalPlant {
     return this.emoji;
   }
 
+  //places in inventory by moving to the inventory part of the screen
   placeInventory(x: number, index: number) {
     this.point = { x: x, y: index / 2.7 };
   }
@@ -132,7 +136,7 @@ export class InternalPlant {
     return this.currentLevel >= this.maxLevel;
   }
 }
-
+//Used to set custom functions for each plant
 export function internalPlantCompiler(
   plantDefinition: ($: PlantDefinitionLanguage) => void,
 ): InternalPlant {
@@ -147,6 +151,7 @@ export function internalPlantCompiler(
     plantID(id) {
       plant.plantID = id;
     },
+    //each plant can have a different growth function
     growsWhen(growsWhen: (context: GrowthContext) => boolean): void {
       plant.canLevelUp = (ctx) => {
         return growsWhen(ctx);

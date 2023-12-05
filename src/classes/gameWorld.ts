@@ -76,6 +76,7 @@ export class GameWorld {
     this.importFrom(dataString);
   }
 
+  //Export entire gameworld to a string
   exportTo(): string {
     //Export gameState - Has to be an array of byte arrays
     const savedPlantMap = this.exportPlants();
@@ -95,6 +96,7 @@ export class GameWorld {
     return JSON.stringify(saveState);
   }
 
+  //Import entire world from a string
   importFrom(state: string) {
     const saveState: SaveState = JSON.parse(state);
 
@@ -108,6 +110,7 @@ export class GameWorld {
     let gameStateList: Map<string, string> = JSON.parse(saveState.gameState);
     gameStateList = new Map(gameStateList);
 
+    //Import Plants, Inventory, and Players from the saveState object
     this.importPlants(gameStateList);
     this.importInventory(saveState.playerInventory);
     this.importPlayers(saveState.playerPoints);
@@ -148,26 +151,32 @@ export class GameWorld {
     return this.gameState.getPlayer(0);
   }
 
+  //Attempt to Place a plant of ID at a point
   placePlant(point: Point, plantId: number) {
     const key = JSON.stringify(point);
 
     if (this.gameState.has(key)) {
+      //Plant already exists at location
       return;
     }
 
+    //Place a new plant
     const newPlant = internalPlantCompiler(allPlantDefinitions[plantId]);
     newPlant.point = point;
 
     this.gameState.set(key, newPlant);
   }
 
+  //Attempt to harvest a plant
   harvestPlant(point: Point) {
     const key = JSON.stringify(point);
     if (!this.gameState.has(key)) {
+      //Plant doesnt exist, do not do anything
       return;
     }
     const plantToHarvest: InternalPlant = this.gameState.get(key)!;
 
+    //If plant is harvestable
     if (plantToHarvest.isReady()) {
       this.playerInventory.push(plantToHarvest);
       plantToHarvest.placeInventory(12, this.playerInventory.length);
@@ -176,26 +185,37 @@ export class GameWorld {
     //Send boardChanged event;
   }
 
+  //Tick the game world
   changeTime() {
     this.time += 1;
+
+    //Randomly create new sun values
     this.sunMod = Math.floor(Math.random() * 3);
+
+    //Iterate through each plant and send levelUp command (plant will level up if possible)
     this.gameState.forEach((plant: InternalPlant) => {
       plant.levelUp(this.getGrowthContext(plant.point));
       const key = plant.getKey();
       this.gameState.set(key, plant);
     });
+
+    //Add water to soil
     this.waterMod += Math.floor(Math.random() * 5) - this.gameState.size;
     if (this.waterMod <= 0) {
       this.waterMod = 1;
     }
   }
 
+  //Gets the growth context for a point in game, useful for leveling up plants
   getGrowthContext(point: Point): GrowthContext {
     let countSame = 0;
     let countDiff = 0;
     const plantID = this.gameState.getID(JSON.stringify(point));
 
     const { x, y } = point;
+
+    //Check in a + around a specific plant
+    //Points to check around a point
     const directions = [
       { x: x, y: y - 1 },
       { x: x, y: y + 1 },
@@ -218,6 +238,7 @@ export class GameWorld {
     };
   }
 
+  //Create a new player in the world
   createPlayer(point: Point) {
     const newPlayer = new Player(point, this.numPlayers);
     const key = JSON.stringify(point);
@@ -226,15 +247,21 @@ export class GameWorld {
     return newPlayer;
   }
 
+  //Draw all objects to the screen
   drawTo(scene: Phaser.Scene): Phaser.GameObjects.Text[] {
     const drawArray: Phaser.GameObjects.Text[] = [];
+
+    //Draw all the plants
     this.gameState.forEach((plant: InternalPlant) => {
       drawArray.push(this.drawPlant(plant, scene));
     });
+
+    //Draw all players
     for (const player of this.gameState.iteratePlayers()) {
       drawArray.push(this.drawPlayer(player, scene));
     }
 
+    //draw inventory
     this.playerInventory.forEach((plant: InternalPlant) => {
       drawArray.push(this.drawPlant(plant, scene));
     });
@@ -242,7 +269,7 @@ export class GameWorld {
     return drawArray;
   }
 
-  // it used to be plant.plantName but since it takes an InternalPlant i just changed it to a plant
+  // Check if the board is in a winning state given a win condition (array of Winning Pairs AKA how many of each plant need to be in the inventory
   haveWon(winningCondition: WinPair[]): boolean {
     const countMap = new Map<string, number>();
     this.playerInventory.forEach((plant: InternalPlant) => {
@@ -270,6 +297,7 @@ export class GameWorld {
     return hasWon;
   }
 
+  //Draw plant to screen
   private drawPlant(
     plant: InternalPlant,
     scene: Phaser.Scene,
@@ -285,6 +313,7 @@ export class GameWorld {
     return t;
   }
 
+  //draw player to screen
   private drawPlayer(
     player: Player,
     scene: Phaser.Scene,
@@ -298,12 +327,14 @@ export class GameWorld {
     return t;
   }
 
+  //Grabs the percentage complete of a plant (used to crop the emoji so plants 'grow')
   private checkLevel(plant: InternalPlant) {
     //Max is 15?
     const max = 14;
     return max - max * plant.getGrowPercentage();
   }
 
+  //export all plants to a map of stringified buffers
   private exportPlants() {
     const savedPlantMap = new Map<string, string>();
     this.gameState.forEach((plant) => {
@@ -341,6 +372,7 @@ export class GameWorld {
     return savedInventoryList;
   }
 
+  //Import plants from a map of (position keys to plant data)
   private importPlants(gameStateMap: Map<string, string>) {
     if (gameStateMap.size > 0) {
       gameStateMap.forEach((buff: string, key: string) => {
@@ -354,6 +386,7 @@ export class GameWorld {
     }
   }
 
+  //Import inventory from JSON string
   private importInventory(saveStateInventoryString: string) {
     this.playerInventory = [];
     const inventoryList = JSON.parse(saveStateInventoryString);
@@ -369,6 +402,7 @@ export class GameWorld {
     }
   }
 
+  //Import players from JSON string
   private importPlayers(playerPointString: string) {
     const points = JSON.parse(playerPointString);
     this.gameState.deletePlayers();

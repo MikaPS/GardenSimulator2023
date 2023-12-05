@@ -10,30 +10,78 @@
 
 ## How we satisfied the software requirements
 
-F2 Requirements:
+#### F2 Requirements:
 
 ### External DSL for Scenario Design
 
 We are using YAML external DSL to set up our scenrios. We have three levels (level 1, 2, 3), each defining the available plants in the level and the winning conditions. We chose to use YAML over JSON because it was easier to read and edit, which allowed us to maneuver through the file and test things as needed.
 
-![F2.a scenario YAML diagram](./scenrios/scenrio.png)
+```YAML
+0:
+  available_plants:
+    - sunflower
+  win_conditions:
+    - - sunflower
+      - 2
+```
 
-In the image, the numbered lines that aren't indented represent each level. Within it, lines with indented once define the available plants and the winning conditions. Each level includes an extra plant so that there's an escalation in difficulty. For example, we can see in line 3 (indented once inside `available plants`) that we are only going to have sunflowers in level 0. The winning conditions are a little bit more complex; each plant has a number associated with it that represents the minimum amount of that plant players need to collect to win.
-
-The devlog should explain the design of your external DSL for scenario design. Tell us which pre-existing data language (e.g. JSON/YAML/TOML) your DSL is based on. If it is not based on a pre-existing language, briefly explain your choice. Show us a short example of a scenario definition in this new language (even if it doesn't exactly match one used in your game's actual code). Next to the code example, give us a natural language translation of the meaning of that program so we can begin to learn how your language works.
-
-Use Markdown to create a code blockLinks to an external site. when sharing an example of your language.
+In the example, the numbered line that isn't indented represents a level (in this case level 0). Within it, lines that are indented once define the available plants and the winning conditions. Each level includes an extra plant so that there's an escalation in difficulty. For example, we can see in the line that is indented once inside `available plants` that we are only going to have sunflowers in level 0. The winning conditions are a little bit more complex; each plant has a number associated with it that represents the minimum amount of that plant players need to collect to win.
 
 ### Internal DSL for Plants and Growth Conditions
 
-We created a plantDefinition internal DSL wit
-Using one or more short code examples (possibly with irrelevant or repetitive blocks removed with "/_ ... _/" comments), show us what it like to use your DSL. Comment on which host language is being used (because the person reading your devlog might not have read the rest of your project's code to guess which language you are using). After the code example, explain the meaning of your code snippets in natural language to help us understand the meaning.
+We created a plantDefinition internal DSL using TypeScript to create plants. Each plant type varies with different functions implementing the growth rate.
 
-Make sure to highlight how your internal DSL allows using host language features that would be difficult to offer in an external DSL.
+An easy way to create an array of all of our possible plant implementation is:
+
+```typescript
+allDummyPlants = allPlantDefinitions.map(internalPlantCompiler);
+```
+
+The plants are given a name (string), emoji (string), id (number), and a growthDefinition (function).
+
+For example, when we create our sunflower plant, we use these definitions:
+
+```typescript
+function sunflower($: PlantDefinitionLanguage) {
+    $.name("sunflower");
+    $.emoji("🌻");
+    $.plantID(1);
+    $.growsWhen((ctx: GrowthContext) => {
+      if (ctx.nearByDifferentPlants > 0) {
+        return false;
+      }
+      if (ctx.nearBySamePlants <= 1) {
+        return false;
+      }
+
+      return true;
+    });
+  },
+```
+
+The sunflower needs to be next to plants of the same type while having 0 plants of other types in order to grow
+
+We also created a `PlacePlant` function that takes a location and an ID to easily add plants into the grid:
+
+```typescript
+  placePlant(point: Point, plantId: number) {
+    const key = JSON.stringify(point);
+    //Plant already exists at location
+    if (this.gameState.has(key)) {
+      return;
+    }
+    //Places a new plant
+    const newPlant = internalPlantCompiler(allPlantDefinitions[plantId]);
+    newPlant.point = point;
+    this.gameState.set(key, newPlant); // updates the grid
+  }
+```
+
+We decided to use an internal DSL instead of an external DSL because of the capabilities to create grow conditions during run-time using functions rather than predefined values. Explaining the different structures of growth rates using an external DSL (like YAML as explained before) would be challenging. Additionally, with interal DSLs, we can access and utilize libraries.
 
 ## Reflection
 
-Looking back on how you achieved the new F2 requirements, how has your team’s plan changed? Did you reconsider any of the choices you previously described for Tools and Materials or your Roles? Has your game design evolved now that you've started to think about giving the player more feedback? It would be very suspicious if you didn’t need to change anything. There’s learning value in you documenting how your team’s thinking has changed over time.
+We reconsidered the growth conditions of each plant type to diversify them more so we can use an internal DSL to define them. With the inclusion plant definitions, we removed many fields in plant class as they became repetitive. Moreover, in previous versions, the winning conditions just checked the total number of plants in the inventory. Now the player will need to get a specific amount of each plant to progress to the next level. Thankfully, we didn't have to make too many different to our code, we mainly had to redesign the structure of the game.
 
 F1 Requirements (no major changes):
 
@@ -72,9 +120,3 @@ F0 requirements are the same as last week:
 
 - **[F0.g] A play scenario is completed when some condition is satisfied (e.g. at least X plants at growth level Y or above).** <br>
   When the player harvests 6 or more plants, the game is won and a helpful message appears. This satisfies the requirements as the scenario is effectively completed after 6 plants have been gathered.
-
-## Reflection
-
-**Looking back on how you achieved the new F1 requirements, how has your team’s plan changed? Did you reconsider any of the choices you previously described for Tools and Materials or your Roles? Has your game design evolved now that you've started to think about giving the player more feedback? It would be very suspicious if you didn’t need to change anything. There’s learning value in you documenting how your team’s thinking has changed over time.**
-
-We decided that it would be easier to save plants as byte arrays rather than a simple class. This way, we could easily implement an ArrayBuffer for the entire grid and maniuplate the values of the plants. We completley changed the way we look at "plants" in the game. We like the tools we previously described; we had previous experience using local storage in TypeScript, which helped us finish the tasks a bit quicker. However, we realized we need to provide more feedback to the player, since each plant grows in a different speed dependning on the day, it can get a bit confusing. We are still trying to come up with the best solution for that, but it would change the way we designed our UI. However, in this version of the game, we made a distinction between the garden and interactable elements. Players can easily see all of the buttons in the brown area of the game, while seeing their changes on top of the garden (green area), so they would have a better understanding of the controllers.

@@ -5,6 +5,7 @@ import { internalPlantCompiler } from "./plant";
 import { allPlantDefinitions } from "../scenarios/plantDefinitions.ts";
 import { PLANT_TYPE_POS } from "./plant.ts";
 
+//A custom datastructure made to immitate a Map but with an underlying ArrayBuffer
 export class DataMap implements Iterator<InternalPlant> {
   public gridBuffer: ArrayBuffer;
   public view: DataView;
@@ -54,10 +55,12 @@ export class DataMap implements Iterator<InternalPlant> {
     this.size = count;
   }
 
+  //Given an X,Y point, get the bugger location of that plant
   getBufferLocation(point: Point): number {
     return (point.x + point.y * this.width) * this.SINGLE_PLANT_BUFFER_SIZE;
   }
 
+  //Set a specific key (x,y) to a plant in the buffer
   set(key: string, plant: InternalPlant) {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
@@ -76,6 +79,7 @@ export class DataMap implements Iterator<InternalPlant> {
     this.view.setInt32(loc + 4, point.y);
   }
 
+  //Retrieves a plant with a specific key
   get(key: string) {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
@@ -90,6 +94,7 @@ export class DataMap implements Iterator<InternalPlant> {
     return newPlant;
   }
 
+  //Gets the ID of a plant stored at a location, skipping creating a plant (useful for grabbing ID to be used for emoji's and names)
   getID(key: string) {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
@@ -102,6 +107,7 @@ export class DataMap implements Iterator<InternalPlant> {
     return id;
   }
 
+  //Grabs the player information given the players index
   getPlayer(id: number) {
     const loc = this.PLAYER_BUFFER_START + id * 8;
 
@@ -111,14 +117,17 @@ export class DataMap implements Iterator<InternalPlant> {
     return newPlayer;
   }
 
+  //removes a key writing 0's in the buffer
   delete(key: string) {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
     this.zeroPlant(loc);
   }
 
+  //Checks if a key exists
   has(key: string): boolean {
     const point: Point = JSON.parse(key);
+    //Check if point is out of bounds to avoid reading out of the buffer the memory
     if (
       point.x < 0 ||
       point.y < 0 ||
@@ -142,6 +151,7 @@ export class DataMap implements Iterator<InternalPlant> {
     return this;
   }
 
+  //Allows forEach to be functional
   next(): IteratorResult<InternalPlant> {
     if (this.currentIterationIndex < this.width * this.height) {
       const plantData = this.getPlantAt(
@@ -188,6 +198,7 @@ export class DataMap implements Iterator<InternalPlant> {
     }
   }
 
+  //Gets an array of bytes for the plant data given an offset
   private getPlantAt(dataView: DataView, offset: number): number[] {
     const bytes: number[] = [];
     for (let i = 0; i < this.SINGLE_PLANT_BUFFER_SIZE; i++) {
@@ -196,12 +207,14 @@ export class DataMap implements Iterator<InternalPlant> {
     return bytes;
   }
 
+  //Writes plant data at a given offset
   private writePlantAt(offset: number, array: Uint8Array) {
     for (let i = 0; i < this.SINGLE_PLANT_BUFFER_SIZE; i++) {
       this.view.setUint8(offset + i, array[i]);
     }
   }
 
+  //Writes 0's at a plant offset effectively deleting it
   private zeroPlant(offset: number) {
     for (let i = 0; i < this.SINGLE_PLANT_BUFFER_SIZE; i++) {
       this.view.setUint8(offset + i, 0);

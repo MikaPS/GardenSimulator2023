@@ -1,6 +1,5 @@
 import * as Phaser from "phaser";
 import * as yaml from "js-yaml";
-// import scenarioContent from "../scenarios/scenrio.yaml";
 
 import { GameWorld } from "../classes/gameWorld.ts";
 import { Player } from "../classes/player.ts";
@@ -27,7 +26,7 @@ export default class Play extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text("yamlData", "src/scenarios/scenario.yaml");
+    this.load.text("yamlData", "./src/scenarios/scenario.yaml");
   }
 
   create() {
@@ -46,6 +45,7 @@ export default class Play extends Phaser.Scene {
       this.saveStateToID(-1);
     };
 
+    //Attempt to load autosave on website load.
     window.onload = () => {
       if (localStorage.getItem("currentSaveFile") != null) {
         const saveID = JSON.parse(localStorage.getItem("currentSaveFile")!);
@@ -53,13 +53,16 @@ export default class Play extends Phaser.Scene {
       }
     };
 
+    //Black rectangle for inventory border
     this.add.rectangle(590, 0, 50, 700, 0x000000).setOrigin(0, 0);
 
+    //Load level
     this.loadLevel(this.currentLevel);
     this.createInterface();
     this.redraw();
   }
 
+  //Increment level
   nextLevel() {
     this.currentLevel = (Number(this.currentLevel) + 1).toString();
     this.loadLevel(this.currentLevel);
@@ -87,6 +90,7 @@ export default class Play extends Phaser.Scene {
     this.winCondition = this.findWinPairs(level);
   }
 
+  //Creates all the buttons below the webpage
   createInterface() {
     this.deleteAllButtons();
     createMovementButtons();
