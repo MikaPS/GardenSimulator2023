@@ -1,12 +1,11 @@
 import { InternalPlant } from "./plant.ts";
 import { Player } from "./player.ts";
 import { Point } from "./gameWorld.ts";
-import { internalPlantCompiler } from "./plant";
+import { internalPlantCompiler } from "./plant.ts";
 import { allPlantDefinitions } from "./plantDefinitions.ts";
 import { PLANT_TYPE_POS } from "./plant.ts";
 
 //A custom datastructure made to immitate a Map but with an underlying ArrayBuffer
-// A rectungular grid of plants stored as a signle contiguous byte array (data locally)
 export class PlantGrid implements Iterator<InternalPlant> {
   public gridBuffer: ArrayBuffer;
   public view: DataView;

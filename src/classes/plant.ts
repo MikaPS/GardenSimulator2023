@@ -1,10 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 import { Point } from "./gameWorld.ts";
-import {
-  PlantDefinitionLanguage,
-  GrowthContext,
-} from "../scenarios/plantDefinitions.ts";
+import { PlantDefinitionLanguage, GrowthContext } from "./plantDefinitions.ts";
 
 export const BUFFER_SIZE: number = 25;
 export const PLANT_TYPE_POS = 24;

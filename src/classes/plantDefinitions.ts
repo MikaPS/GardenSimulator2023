@@ -1,4 +1,4 @@
-import { internalPlantCompiler } from "../classes/plant";
+import { internalPlantCompiler } from "./plant";
 
 export interface GrowthContext {
   nearBySamePlants: number;

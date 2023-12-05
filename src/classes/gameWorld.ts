@@ -5,12 +5,9 @@ import {
   internalPlantCompiler,
   PLANT_TYPE_POS,
 } from "./plant.ts";
-import { DataMap } from "./dataMap.ts";
+import { PlantGrid } from "./plantGrid.ts";
 
-import {
-  GrowthContext,
-  allPlantDefinitions,
-} from "../scenarios/plantDefinitions.ts";
+import { GrowthContext, allPlantDefinitions } from "./plantDefinitions.ts";
 // import { PlantDefinitionLanguage } from '../scenarios/plantDefenitions';
 // import { internalPlantCompiler } from './plant';
 
@@ -39,7 +36,7 @@ export class GameWorld {
   private height = 10;
   private numPlayers = 0;
   // Buffersize works for only plants, if we want to add the player we need to make it bigger
-  public gameState = new DataMap(
+  public gameState = new PlantGrid(
     this.width,
     this.height,
     BUFFER_SIZE,
@@ -55,11 +52,16 @@ export class GameWorld {
 
   private padding = { x: 0, y: 3 };
 
-  mySavedData: DataMap[] = [];
+  mySavedData: PlantGrid[] = [];
   constructor() {
     for (let i: number = 0; i < 3; i++) {
       this.mySavedData.push(
-        new DataMap(this.width, this.height, BUFFER_SIZE, this.numPlayers + 1),
+        new PlantGrid(
+          this.width,
+          this.height,
+          BUFFER_SIZE,
+          this.numPlayers + 1,
+        ),
       );
     }
   }
@@ -100,7 +102,7 @@ export class GameWorld {
   importFrom(state: string) {
     const saveState: SaveState = JSON.parse(state);
 
-    this.gameState = new DataMap(
+    this.gameState = new PlantGrid(
       this.width,
       this.height,
       BUFFER_SIZE,

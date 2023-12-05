@@ -5,7 +5,7 @@ import { GameWorld } from "../classes/gameWorld.ts";
 import { Player } from "../classes/player.ts";
 import { WinPair } from "../classes/gameWorld.ts";
 import { createMovementButtons } from "../main.ts";
-import { PlantUtilityFunctions } from "../scenarios/plantDefinitions.ts";
+import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
 export default class Play extends Phaser.Scene {
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
@@ -26,7 +26,7 @@ export default class Play extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text("yamlData", "./src/scenarios/scenario.yaml");
+    this.load.text("yamlData", "./public/scenarios/scenario.yaml");
   }
 
   create() {
