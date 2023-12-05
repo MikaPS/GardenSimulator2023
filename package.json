@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "scenrio.yaml && tsc && vite build",
+    "build": "scenario.yaml && tsc && vite build",
     "preview": "vite preview",
     "test": "tsc && vite build && eslint ."
   },
