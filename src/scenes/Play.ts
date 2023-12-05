@@ -27,7 +27,7 @@ export class Play extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text("yamlData", "/assets/scenario.yml");
+    this.load.text("yamlData", "/assets/scenario.yml?url");
   }
 
   create() {
