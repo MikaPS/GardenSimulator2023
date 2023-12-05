@@ -12,19 +12,13 @@ export class InternalPlant {
   private buffer = new ArrayBuffer(BUFFER_SIZE);
   private view = new DataView(this.buffer);
 
-  // point: Point;
-  // plantName: plantName;
-  // currentLevel: number;
-  // maxLevel: number = 50;
   private X_POS = 0;
   private Y_POS = 8;
   private CURRRENT_LEVEL_POS = 16;
   private MAX_LEVEL_POS = 20;
-  // private PLANT_TYPE_POS = 24;
 
   public emoji: string = "NOT SET";
   public name: string = "NOT SET";
-  // public id: number = -1;
 
   constructor(point: Point = { x: 0, y: 0 }) {
     /*
