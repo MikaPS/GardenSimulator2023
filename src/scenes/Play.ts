@@ -1,14 +1,12 @@
 import * as Phaser from "phaser";
 import * as yaml from "js-yaml";
-// import * as fs from "fs";
 // import scenarioContent from "../scenarios/scenrio.yaml";
 
 import { GameWorld } from "../classes/gameWorld.ts";
-import { plantTypeToEmoji, PlantType } from "../classes/plant.ts";
 import { Player } from "../classes/player.ts";
 import { WinPair } from "../classes/gameWorld.ts";
 import { createMovementButtons } from "../main.ts";
-
+import { PlantUtilityFunctions } from "../scenarios/plantDefinitions.ts";
 export default class Play extends Phaser.Scene {
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
@@ -16,8 +14,9 @@ export default class Play extends Phaser.Scene {
   currentLevel: string = "0";
   gameHistory: string[] = [];
   redoHistory: string[] = [];
-  availablePlants: PlantType[] = [];
+  availablePlants: string[] = [];
   winCondition: WinPair[] = [];
+  helper: PlantUtilityFunctions = new PlantUtilityFunctions();
 
   currentSaveFile: number = 0;
 
@@ -122,9 +121,8 @@ export default class Play extends Phaser.Scene {
     const winCondition = level["win_conditions"];
     const winPairs: WinPair[] = [];
 
-    console.log(this.board.playerInventory);
-    winCondition.forEach((w: [PlantType, number]) => {
-      const winPair = { plant: w[0], amount: w[1] };
+    winCondition.forEach((w: [string, number]) => {
+      const winPair = { plantName: w[0], amount: w[1] };
       winPairs.push(winPair);
     });
     return winPairs;
@@ -133,8 +131,9 @@ export default class Play extends Phaser.Scene {
   newLine() {
     this.appendToPage(document.createElement("br"));
   }
-  createPlantButtons(plantList: PlantType[]) {
-    plantList.forEach((plant: PlantType) => {
+
+  createPlantButtons(plantList: string[]) {
+    plantList.forEach((plant: string) => {
       this.addPlantButton(plant);
     });
   }
@@ -249,12 +248,12 @@ export default class Play extends Phaser.Scene {
     });
   }
 
-  addPlantButton(plantName: PlantType) {
-    // const pt = plantName as string;
+  addPlantButton(plantName: string) {
     const button = document.createElement("button");
-    button.innerHTML = plantTypeToEmoji[plantName];
+    const plantId = this.helper.getIDfromName(plantName);
+    button.innerHTML = this.helper.getEmojifromName(plantName);
     button.addEventListener("click", () => {
-      this.board.placePlant(this.player.point, plantName);
+      this.board.placePlant(this.player.point, plantId);
       this.onActionClicked();
     });
 

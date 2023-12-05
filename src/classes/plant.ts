@@ -1,70 +1,49 @@
 /* eslint-disable no-unused-vars */
 
 import { Point } from "./gameWorld.ts";
-
-export type PlantType = "sunflower" | "appleTree" | "lilyOfTheValley";
-const plantTypeNumbers: Record<number | PlantType, PlantType | number> = {
-  1: "sunflower",
-  sunflower: 1,
-
-  2: "appleTree",
-  appleTree: 2,
-
-  3: "lilyOfTheValley",
-  lilyOfTheValley: 3,
-};
-
-export const plantTypeToEmoji: Record<PlantType, string> = {
-  sunflower: "🌻",
-  appleTree: "🍎",
-  lilyOfTheValley: "🌼",
-};
+import {
+  PlantDefinitionLanguage,
+  GrowthContext,
+} from "../scenarios/plantDefinitions.ts";
 
 export const BUFFER_SIZE: number = 25;
-
-export interface growthContext {
-  nearBySamePlants: number;
-  nearByDifferentPlants: number;
-  sunLevel: number;
-  waterLevel: number;
-}
-
-export interface PlantDefinitionLanguage {
-  name(name: string): void;
-  emoji(emoji: string): void;
-  growsWhen(growsWhen: (context: growthContext) => boolean): void;
-}
-
-export class Plant {
+export const PLANT_TYPE_POS = 24;
+export class InternalPlant {
   private buffer = new ArrayBuffer(BUFFER_SIZE);
   private view = new DataView(this.buffer);
 
   // point: Point;
-  // plantType: PlantType;
+  // plantName: plantName;
   // currentLevel: number;
   // maxLevel: number = 50;
   private X_POS = 0;
   private Y_POS = 8;
   private CURRRENT_LEVEL_POS = 16;
   private MAX_LEVEL_POS = 20;
-  private PLANT_TYPE_POS = 24;
+  // private PLANT_TYPE_POS = 24;
 
-  constructor(point: Point = { x: 0, y: 0 }, pType: PlantType = "sunflower") {
+  public emoji: string = "NOT SET";
+  public name: string = "NOT SET";
+  // public id: number = -1;
+
+  constructor(point: Point = { x: 0, y: 0 }) {
     /*
     x: 0-7
     y: 8-15
     currentLevel: 16-19
     maxLevel: 20-23
-    plantType: 24
+    plantName: 24
     */
     const defaultStartingLevel = 1;
-    const defaultMaxLevel = 12;
+    const defaultMaxLevel = 15;
 
     this.view.setFloat64(this.X_POS, point.x);
     this.view.setFloat64(this.Y_POS, point.y);
     this.view.setFloat32(this.CURRRENT_LEVEL_POS, defaultStartingLevel);
     this.view.setFloat32(this.MAX_LEVEL_POS, defaultMaxLevel);
-    this.view.setUint8(this.PLANT_TYPE_POS, plantTypeNumbers[pType] as number);
+    this.view.setUint8(PLANT_TYPE_POS, -1);
+
+    //We need to call the internal compiler here
   }
 
   // get/set point
@@ -96,16 +75,20 @@ export class Plant {
   }
 
   // get/set plant type
-  get plantType(): PlantType {
-    const pType = plantTypeNumbers[
-      this.view.getUint8(this.PLANT_TYPE_POS)
-    ] as PlantType;
-    return pType;
+  get plantName(): string {
+    return this.name;
   }
 
-  set plantType(val: PlantType) {
-    const pType = plantTypeNumbers[val] as number;
-    this.view.setUint8(this.PLANT_TYPE_POS, pType);
+  set plantName(name: string) {
+    this.name = name;
+  }
+
+  get plantID(): number {
+    return this.view.getUint8(PLANT_TYPE_POS);
+  }
+  set plantID(id: number) {
+    // this.id = id;
+    this.view.setUint8(PLANT_TYPE_POS, id);
   }
 
   getKey(): string {
@@ -121,23 +104,21 @@ export class Plant {
     this.view = new DataView(this.buffer);
   }
 
-  levelUp(sunMod: number, waterMod: number, numOfPlants: number) {
-    if (numOfPlants < 2) {
-      const v = this.clamp(
-        0,
-        this.maxLevel,
-        this.currentLevel + sunMod * waterMod,
-      );
+  levelUp(ctx: GrowthContext) {
+    if (this.canLevelUp(ctx)) {
+      const v = this.clamp(0, this.maxLevel, this.currentLevel + 1);
       this.currentLevel = v;
     }
   }
+
+  canLevelUp: (context: GrowthContext) => boolean = (_ctx) => false;
 
   clamp(min: number, max: number, val: number) {
     return Math.max(min, Math.min(max, val));
   }
 
   getEmoji(): string {
-    return plantTypeToEmoji[this.plantType];
+    return this.emoji;
   }
 
   placeInventory(x: number, index: number) {
@@ -150,4 +131,28 @@ export class Plant {
   isReady() {
     return this.currentLevel >= this.maxLevel;
   }
+}
+
+export function internalPlantCompiler(
+  plantDefinition: ($: PlantDefinitionLanguage) => void,
+): InternalPlant {
+  const plant = new InternalPlant();
+  const dsl: PlantDefinitionLanguage = {
+    name(name: string): void {
+      plant.plantName = name;
+    },
+    emoji(emoji: string): void {
+      plant.emoji = emoji;
+    },
+    plantID(id) {
+      plant.plantID = id;
+    },
+    growsWhen(growsWhen: (context: GrowthContext) => boolean): void {
+      plant.canLevelUp = (ctx) => {
+        return growsWhen(ctx);
+      };
+    },
+  };
+  plantDefinition(dsl);
+  return plant;
 }

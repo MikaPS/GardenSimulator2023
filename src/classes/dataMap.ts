@@ -1,8 +1,11 @@
-import { Plant } from "./plant.ts";
+import { InternalPlant } from "./plant.ts";
 import { Player } from "./player.ts";
 import { Point } from "./gameWorld.ts";
+import { internalPlantCompiler } from "./plant";
+import { allPlantDefinitions } from "../scenarios/plantDefinitions.ts";
+import { PLANT_TYPE_POS } from "./plant.ts";
 
-export class DataMap implements Iterator<Plant> {
+export class DataMap implements Iterator<InternalPlant> {
   public gridBuffer: ArrayBuffer;
   public view: DataView;
   private currentIterationIndex = 0;
@@ -14,7 +17,6 @@ export class DataMap implements Iterator<Plant> {
   private PLAYER_BUFFER_START: number;
   private TOTAL_PLAYER_BUFF_SIZE: number;
   private numPlayers: number;
-
   constructor(
     width: number,
     height: number,
@@ -56,12 +58,11 @@ export class DataMap implements Iterator<Plant> {
     return (point.x + point.y * this.width) * this.SINGLE_PLANT_BUFFER_SIZE;
   }
 
-  set(key: string, plant: Plant) {
+  set(key: string, plant: InternalPlant) {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
 
     const smallPlantArray = new Uint8Array(plant.exportToByteArray());
-    // this.view.setUint8(loc, smallPlantArray[0]);
     this.writePlantAt(loc, smallPlantArray);
   }
 
@@ -79,9 +80,26 @@ export class DataMap implements Iterator<Plant> {
     const point: Point = JSON.parse(key);
     const loc = this.getBufferLocation(point);
     const plantData = this.getPlantAt(this.view, loc);
-    const newPlant = new Plant();
-    newPlant.importFromByteArray(new Uint8Array(plantData).buffer);
+    const plantBuffer: ArrayBuffer = new Uint8Array(plantData).buffer;
+
+    const view = new DataView(plantBuffer);
+    const id = view.getUint8(PLANT_TYPE_POS);
+    const newPlant = internalPlantCompiler(allPlantDefinitions[id]);
+
+    newPlant.importFromByteArray(plantBuffer);
     return newPlant;
+  }
+
+  getID(key: string) {
+    const point: Point = JSON.parse(key);
+    const loc = this.getBufferLocation(point);
+    const plantData = this.getPlantAt(this.view, loc);
+    const plantBuffer: ArrayBuffer = new Uint8Array(plantData).buffer;
+
+    const view = new DataView(plantBuffer);
+    const id = view.getUint8(PLANT_TYPE_POS);
+
+    return id;
   }
 
   getPlayer(id: number) {
@@ -113,26 +131,31 @@ export class DataMap implements Iterator<Plant> {
 
     //From Plant class Type
     const plantData = this.getPlantAt(this.view, loc);
-    const newP = new Plant();
+    const plantBuffer: ArrayBuffer = new Uint8Array(plantData).buffer;
 
-    newP.importFromByteArray(new Uint8Array(plantData).buffer);
-
-    return newP.plantType !== undefined;
+    const view = new DataView(plantBuffer);
+    const id = view.getUint8(PLANT_TYPE_POS);
+    return id != 0;
   }
 
-  [Symbol.iterator](): Iterator<Plant> {
+  [Symbol.iterator](): Iterator<InternalPlant> {
     return this;
   }
 
-  next(): IteratorResult<Plant> {
+  next(): IteratorResult<InternalPlant> {
     if (this.currentIterationIndex < this.width * this.height) {
       const plantData = this.getPlantAt(
         this.view,
         this.currentIterationIndex * this.SINGLE_PLANT_BUFFER_SIZE,
       );
-      const newPlant = new Plant();
 
-      newPlant.importFromByteArray(new Uint8Array(plantData).buffer);
+      const plantBuffer: ArrayBuffer = new Uint8Array(plantData).buffer;
+      const view = new DataView(plantBuffer);
+      const id = view.getUint8(PLANT_TYPE_POS);
+      const newPlant = internalPlantCompiler(allPlantDefinitions[id]);
+
+      newPlant.importFromByteArray(plantBuffer);
+
       return { value: newPlant, done: false };
     } else {
       this.currentIterationIndex = 0;
@@ -140,10 +163,10 @@ export class DataMap implements Iterator<Plant> {
     }
   }
 
-  forEach(callback: (value: Plant, index: number) => void) {
+  forEach(callback: (value: InternalPlant, index: number) => void) {
     this.currentIterationIndex = 0;
     for (const plant of this) {
-      if (plant.plantType == undefined) {
+      if (plant.plantID == 0) {
         this.currentIterationIndex++;
         continue;
       }

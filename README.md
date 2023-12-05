@@ -4,12 +4,38 @@
 
 - 11/17/2023 - introducing the team: https://github.com/MikaPS/GardenSimulator2023/tree/969395d396bd3d06578792227bb6261b358070af
 - 11/21/2023 - f0: https://github.com/MikaPS/GardenSimulator2023/tree/4fc46044b69290cb4b10f7714747767303cfa75b
+- 11/29/2023 - f1: https://github.com/MikaPS/GardenSimulator2023/tree/fb89b34f5511ffad84d5993a19eca70cb018ef2e
 
-### Devlog Entry - 11/29/2023
+### Devlog Entry - 12/4/2023
 
 ## How we satisfied the software requirements
 
-F1 Requirements:
+F2 Requirements:
+
+### External DSL for Scenario Design
+
+We are using YAML external DSL to set up our scenrios. We have three levels (level 1, 2, 3), each defining the available plants in the level and the winning conditions. We chose to use YAML over JSON because it was easier to read and edit, which allowed us to maneuver through the file and test things as needed.
+
+![F2.a scenario YAML diagram](./scenrios/scenrio.png)
+
+In the image, the numbered lines that aren't indented represent each level. Within it, lines with indented once define the available plants and the winning conditions. Each level includes an extra plant so that there's an escalation in difficulty. For example, we can see in line 3 (indented once inside `available plants`) that we are only going to have sunflowers in level 0. The winning conditions are a little bit more complex; each plant has a number associated with it that represents the minimum amount of that plant players need to collect to win.
+
+The devlog should explain the design of your external DSL for scenario design. Tell us which pre-existing data language (e.g. JSON/YAML/TOML) your DSL is based on. If it is not based on a pre-existing language, briefly explain your choice. Show us a short example of a scenario definition in this new language (even if it doesn't exactly match one used in your game's actual code). Next to the code example, give us a natural language translation of the meaning of that program so we can begin to learn how your language works.
+
+Use Markdown to create a code blockLinks to an external site. when sharing an example of your language.
+
+### Internal DSL for Plants and Growth Conditions
+
+We created a plantDefinition internal DSL wit
+Using one or more short code examples (possibly with irrelevant or repetitive blocks removed with "/_ ... _/" comments), show us what it like to use your DSL. Comment on which host language is being used (because the person reading your devlog might not have read the rest of your project's code to guess which language you are using). After the code example, explain the meaning of your code snippets in natural language to help us understand the meaning.
+
+Make sure to highlight how your internal DSL allows using host language features that would be difficult to offer in an external DSL.
+
+## Reflection
+
+Looking back on how you achieved the new F2 requirements, how has your team’s plan changed? Did you reconsider any of the choices you previously described for Tools and Materials or your Roles? Has your game design evolved now that you've started to think about giving the player more feedback? It would be very suspicious if you didn’t need to change anything. There’s learning value in you documenting how your team’s thinking has changed over time.
+
+F1 Requirements (no major changes):
 
 - **[F1.a] The important state of each cell of your game’s grid must be backed by a single contiguous byte array in AoS or SoA format. Your team must statically allocate memory usage for the whole grid.**
   We create a DataMap class that holds a single contiguous byte array that we use to allocate memory for the entire grid. Using dataview, we created a wrapper around the byte array so we could use regular functions on it (set, get, forEach, etc). Each location on the grid correlates to a buffer location which we get using this function: getBufferLocation(). We set the dataview at this buffer location to either 0 if we don't have a plant or to an array buffer that represents the plant. After going through all grid locations, we add the player to the byte array (save its location and ID in case we have multiple players). We have an AoS structure for the byte array where we save the information of each plant based on their position on the grid, so we have the full information of one location on the grid and then we save the information of the next cell.

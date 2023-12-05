@@ -1,7 +1,18 @@
-import { Plant, PlantType } from "./plant.ts";
 import { Player } from "./player.ts";
-import { BUFFER_SIZE } from "./plant.ts";
+import {
+  InternalPlant,
+  BUFFER_SIZE,
+  internalPlantCompiler,
+  PLANT_TYPE_POS,
+} from "./plant.ts";
 import { DataMap } from "./dataMap.ts";
+
+import {
+  GrowthContext,
+  allPlantDefinitions,
+} from "../scenarios/plantDefinitions.ts";
+// import { PlantDefinitionLanguage } from '../scenarios/plantDefenitions';
+// import { internalPlantCompiler } from './plant';
 
 export interface Point {
   x: number;
@@ -9,7 +20,7 @@ export interface Point {
 }
 
 export interface WinPair {
-  plant: PlantType;
+  plantName: string;
   amount: number;
 }
 
@@ -36,7 +47,7 @@ export class GameWorld {
   );
 
   //Background layer
-  playerInventory: Plant[] = [];
+  playerInventory: InternalPlant[] = [];
   sunMod: number = 1;
   waterMod: number = 1;
   time: number = 1;
@@ -137,12 +148,16 @@ export class GameWorld {
     return this.gameState.getPlayer(0);
   }
 
-  placePlant(point: Point, plantType: PlantType) {
+  placePlant(point: Point, plantId: number) {
     const key = JSON.stringify(point);
+
     if (this.gameState.has(key)) {
       return;
     }
-    const newPlant = new Plant(point, plantType);
+
+    const newPlant = internalPlantCompiler(allPlantDefinitions[plantId]);
+    newPlant.point = point;
+
     this.gameState.set(key, newPlant);
   }
 
@@ -151,7 +166,7 @@ export class GameWorld {
     if (!this.gameState.has(key)) {
       return;
     }
-    const plantToHarvest: Plant = this.gameState.get(key)!;
+    const plantToHarvest: InternalPlant = this.gameState.get(key)!;
 
     if (plantToHarvest.isReady()) {
       this.playerInventory.push(plantToHarvest);
@@ -164,23 +179,22 @@ export class GameWorld {
   changeTime() {
     this.time += 1;
     this.sunMod = Math.floor(Math.random() * 3);
-    this.gameState.forEach((plant: Plant) => {
-      plant.levelUp(
-        this.sunMod,
-        this.waterMod,
-        this.checkPlantsNearby(plant.point),
-      );
+    this.gameState.forEach((plant: InternalPlant) => {
+      plant.levelUp(this.getGrowthContext(plant.point));
       const key = plant.getKey();
       this.gameState.set(key, plant);
     });
-    this.waterMod = Math.floor(Math.random() * 5) - this.gameState.size;
+    this.waterMod += Math.floor(Math.random() * 5) - this.gameState.size;
     if (this.waterMod <= 0) {
       this.waterMod = 1;
     }
   }
 
-  checkPlantsNearby(point: Point): number {
-    let count = 0;
+  getGrowthContext(point: Point): GrowthContext {
+    let countSame = 0;
+    let countDiff = 0;
+    const plantID = this.gameState.getID(JSON.stringify(point));
+
     const { x, y } = point;
     const directions = [
       { x: x, y: y - 1 },
@@ -191,10 +205,17 @@ export class GameWorld {
 
     directions.forEach((direction) => {
       if (this.gameState.has(JSON.stringify(direction))) {
-        count++;
+        const newID = this.gameState.getID(JSON.stringify(direction));
+        newID == plantID ? countSame++ : countDiff++;
       }
     });
-    return count;
+
+    return {
+      waterLevel: this.waterMod,
+      sunLevel: this.sunMod,
+      nearBySamePlants: countSame,
+      nearByDifferentPlants: countDiff,
+    };
   }
 
   createPlayer(point: Point) {
@@ -207,41 +228,40 @@ export class GameWorld {
 
   drawTo(scene: Phaser.Scene): Phaser.GameObjects.Text[] {
     const drawArray: Phaser.GameObjects.Text[] = [];
-    this.gameState.forEach((plant: Plant) => {
+    this.gameState.forEach((plant: InternalPlant) => {
       drawArray.push(this.drawPlant(plant, scene));
     });
     for (const player of this.gameState.iteratePlayers()) {
       drawArray.push(this.drawPlayer(player, scene));
     }
 
-    this.playerInventory.forEach((plant: Plant) => {
+    this.playerInventory.forEach((plant: InternalPlant) => {
       drawArray.push(this.drawPlant(plant, scene));
     });
 
     return drawArray;
   }
 
+  // it used to be plant.plantName but since it takes an InternalPlant i just changed it to a plant
   haveWon(winningCondition: WinPair[]): boolean {
-    const countMap = new Map<PlantType, number>();
-
-    this.playerInventory.forEach((plant: Plant) => {
-      if (countMap.has(plant.plantType)) {
-        let val = countMap.get(plant.plantType)!;
+    const countMap = new Map<string, number>();
+    this.playerInventory.forEach((plant: InternalPlant) => {
+      if (countMap.has(plant.plantName)) {
+        let val = countMap.get(plant.plantName)!;
         val++;
-        countMap.set(plant.plantType, val);
+        countMap.set(plant.plantName, val);
       } else {
-        countMap.set(plant.plantType, 1);
+        countMap.set(plant.plantName, 1);
       }
     });
-    console.log("In haveWon: ", countMap);
     let hasWon = true;
 
     winningCondition.forEach((condition: WinPair) => {
-      const plantType = condition.plant;
+      const plantName = condition.plantName;
       const amount = condition.amount;
       if (
-        countMap.get(plantType) === undefined ||
-        countMap.get(plantType)! < amount
+        countMap.get(plantName) === undefined ||
+        countMap.get(plantName)! < amount
       ) {
         hasWon = false;
         return;
@@ -251,7 +271,7 @@ export class GameWorld {
   }
 
   private drawPlant(
-    plant: Plant,
+    plant: InternalPlant,
     scene: Phaser.Scene,
   ): Phaser.GameObjects.Text {
     const t = scene.add.text(
@@ -278,7 +298,7 @@ export class GameWorld {
     return t;
   }
 
-  private checkLevel(plant: Plant) {
+  private checkLevel(plant: InternalPlant) {
     //Max is 15?
     const max = 14;
     return max - max * plant.getGrowPercentage();
@@ -325,7 +345,9 @@ export class GameWorld {
     if (gameStateMap.size > 0) {
       gameStateMap.forEach((buff: string, key: string) => {
         const BF = this.stringToArrayBuffer(buff);
-        const plant = new Plant();
+        const view = new DataView(BF);
+        const id = view.getUint8(PLANT_TYPE_POS);
+        const plant = internalPlantCompiler(allPlantDefinitions[id]);
         plant.importFromByteArray(BF);
         this.gameState.set(key, plant);
       });
@@ -338,7 +360,9 @@ export class GameWorld {
     if (inventoryList.length > 0) {
       inventoryList.forEach((buff: string) => {
         const BF = this.stringToArrayBuffer(buff);
-        const plant = new Plant();
+        const view = new DataView(BF);
+        const id = view.getUint8(PLANT_TYPE_POS);
+        const plant = internalPlantCompiler(allPlantDefinitions[id]);
         plant.importFromByteArray(BF);
         this.playerInventory.push(plant);
       });
