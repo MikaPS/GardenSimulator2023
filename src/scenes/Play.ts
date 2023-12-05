@@ -1,12 +1,13 @@
 import * as Phaser from "phaser";
-import * as yaml from "js-yaml";
+// import * as yaml from "js-yaml";
 
 import { GameWorld } from "../classes/gameWorld.ts";
 import { Player } from "../classes/player.ts";
 import { WinPair } from "../classes/gameWorld.ts";
 import { createMovementButtons } from "../main.ts";
 import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
-export default class Play extends Phaser.Scene {
+
+export class Play extends Phaser.Scene {
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
   drawnElements: Phaser.GameObjects.Text[] = [];
@@ -15,6 +16,7 @@ export default class Play extends Phaser.Scene {
   redoHistory: string[] = [];
   availablePlants: string[] = [];
   winCondition: WinPair[] = [];
+  yamldata: Record<string, any> = [];
   helper: PlantUtilityFunctions = new PlantUtilityFunctions();
 
   currentSaveFile: number = 0;
@@ -26,10 +28,12 @@ export default class Play extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text("yamlData", "/assets/scenario.yaml");
+    // this.load.text("yamlData", "/assets/scenario.yaml");
   }
 
-  create() {
+  create(yamldata: Record<string, any>) {
+    this.yamldata = yamldata.yamlData;
+    // console.log(data.yamlData);
     // save initial state when opening it for the first time
     if (!localStorage.getItem("firstTimeFlag")) {
       for (let i = 0; i < 3; i++) {
@@ -81,10 +85,11 @@ export default class Play extends Phaser.Scene {
 
   setLevelData(levelName: string) {
     // Read from YAML file
-    const yamlContent = this.cache.text.get("yamlData");
+    // const yamlContent = this.cache.text.get("yamlData");
 
     // Parse YAML content
-    const data: Record<string, any> = yaml.load(yamlContent)!;
+    // const data: Record<string, any> = yaml.load(yamlContent)!;
+    const data: Record<string, any> = this.yamldata;
     const level = data[levelName];
     this.availablePlants = level["available_plants"];
     this.winCondition = this.findWinPairs(level);

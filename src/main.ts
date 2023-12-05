@@ -1,11 +1,12 @@
 import * as Phaser from "phaser";
-import Menu from "./scenes/Menu";
-import Play from "./scenes/Play";
+// import Menu from "./scenes/Menu";
+import PreloaderScene from "./scenes/Menu";
+import { Play } from "./scenes/Play";
 
 const config: Phaser.Types.Core.GameConfig = {
   width: 640,
   height: 480,
-  scene: [Menu, Play],
+  scene: [PreloaderScene, Play],
   backgroundColor: "#6b8e23",
 };
 
