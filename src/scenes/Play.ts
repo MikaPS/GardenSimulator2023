@@ -26,7 +26,7 @@ export default class Play extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text("yamlData", "./public/scenarios/scenario.yaml");
+    this.load.text("yamlData", "../../public/assets/scenario.yaml");
   }
 
   create() {
