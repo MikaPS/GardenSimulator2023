@@ -7,6 +7,8 @@ import { WinPair } from "../classes/gameWorld.ts";
 import { createMovementButtons } from "../main.ts";
 import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
 
+import yamldata from "/assets/scenario.yaml?url";
+
 export class Play extends Phaser.Scene {
   board: GameWorld = new GameWorld();
   player: Player = this.board.createPlayer({ x: 0, y: 0 });
@@ -27,7 +29,7 @@ export class Play extends Phaser.Scene {
   }
 
   preload() {
-    this.load.text("yamlData", "/assets/scenario.yml?url");
+    this.load.text("yamlData", yamldata);
   }
 
   create() {
@@ -83,6 +85,7 @@ export class Play extends Phaser.Scene {
   setLevelData(levelName: string) {
     // Read from YAML file
     const yamlContent = this.cache.text.get("yamlData");
+    // const yamlContent = yamldata;
 
     // Parse YAML content
     const data: Record<string, any> = yaml.load(yamlContent)!;
@@ -343,8 +346,4 @@ export class Play extends Phaser.Scene {
     this.player = this.board.getOnePlayer();
     this.redraw();
   }
-
-  //Called every tick
-  //Maybe redraw the screen only when there is a screen change
-  update() {}
 }
