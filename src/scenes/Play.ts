@@ -85,13 +85,13 @@ export class Play extends Phaser.Scene {
   setLevelData(levelName: string) {
     // Read from YAML file
     const yamlContent = this.cache.text.get("yamlData");
-    // const yamlContent = yamldata;
-
     // Parse YAML content
     const data: Record<string, any> = yaml.load(yamlContent)!;
     const level = data[levelName];
-    this.availablePlants = level["available_plants"];
-    this.winCondition = this.findWinPairs(level);
+    if (levelName == "0" || levelName == "1" || levelName == "2") {
+      this.availablePlants = level["available_plants"];
+      this.winCondition = this.findWinPairs(level);
+    }
   }
 
   //Creates all the buttons below the webpage

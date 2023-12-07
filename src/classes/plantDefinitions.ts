@@ -87,7 +87,6 @@ export class PlantUtilityFunctions {
 
   getEmojifromName(name: string): string {
     let foundEmoji = "NO EMOJI";
-
     this.allDummyPlants.forEach((dummy) => {
       if (dummy.name === name) {
         foundEmoji = dummy.emoji;

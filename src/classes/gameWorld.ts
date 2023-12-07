@@ -8,8 +8,6 @@ import {
 import { PlantGrid } from "./plantGrid.ts";
 
 import { GrowthContext, allPlantDefinitions } from "./plantDefinitions.ts";
-// import { PlantDefinitionLanguage } from '../scenarios/plantDefenitions';
-// import { internalPlantCompiler } from './plant';
 
 export interface Point {
   x: number;
@@ -341,9 +339,7 @@ export class GameWorld {
     const savedPlantMap = new Map<string, string>();
     this.gameState.forEach((plant) => {
       const key = plant.getKey();
-
       const BA = plant.exportToByteArray();
-
       savedPlantMap.set(key, this.arrayBufferToString(BA));
     });
 

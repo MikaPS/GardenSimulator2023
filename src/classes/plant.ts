@@ -33,8 +33,6 @@ export class InternalPlant {
     this.view.setFloat32(this.CURRRENT_LEVEL_POS, defaultStartingLevel);
     this.view.setFloat32(this.MAX_LEVEL_POS, defaultMaxLevel);
     this.view.setUint8(PLANT_TYPE_POS, -1);
-
-    //We need to call the internal compiler here
   }
 
   // get/set point
