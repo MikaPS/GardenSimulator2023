@@ -4,17 +4,17 @@
   "description": "A fun garden game!!!",
   "icons": [
     {
-      "src": "/assets/tiny_turnip.png",
+      "src": "assets/tiny_turnip.png",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "/assets/tiny_turnip_512.png",
+      "src": "assets/tiny_turnip_512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "start_url": "./GardenSimulator2023",
+  "start_url": "/",
   "display": "fullscreen",
   "theme_color": "#B12A34",
   "background_color": "#B12A34"
