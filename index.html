@@ -3,9 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
   </head>
   <body>
     <script type="module" src="/src/main.ts"></script>
-    <link rel="manifest" href="manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("service-worker.js", {
+            scope: "./",
+          })
+          .then((registration) => {
+            let serviceWorker;
+            if (registration.installing) {
+              serviceWorker = registration.installing;
+              document.querySelector("#kind").textContent = "installing";
+            } else if (registration.waiting) {
+              serviceWorker = registration.waiting;
+              document.querySelector("#kind").textContent = "waiting";
+            } else if (registration.active) {
+              serviceWorker = registration.active;
+              document.querySelector("#kind").textContent = "active";
+            }
+            if (serviceWorker) {
+              serviceWorker.addEventListener("statechange", (e) => {
+                // Handle state change if needed
+              });
+            }
+          })
+          .catch((error) => {
+            // Handle registration error
+          });
+      } else {
+        // The current browser doesn't support service workers.
+        // Perhaps it is too old or we are not in a Secure Context.
+      }
+    </script>
   </body>
 </html>
