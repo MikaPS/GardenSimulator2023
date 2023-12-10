@@ -4,8 +4,9 @@ import * as yaml from "js-yaml";
 import { GameWorld } from "../classes/gameWorld.ts";
 import { Player } from "../classes/player.ts";
 import { WinPair } from "../classes/gameWorld.ts";
-import { createMovementButtons } from "../main.ts";
+import { createLanguageButtons, createMovementButtons } from "../main.ts";
 import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
+import { LevelCompleteTranslation } from "../assets/translations.ts";
 
 import yamldata from "/assets/scenario.yaml?url";
 
@@ -19,6 +20,7 @@ export class Play extends Phaser.Scene {
   availablePlants: string[] = [];
   winCondition: WinPair[] = [];
   helper: PlantUtilityFunctions = new PlantUtilityFunctions();
+  currentLanguage: string = "English";
 
   currentSaveFile: number = 0;
 
@@ -61,6 +63,7 @@ export class Play extends Phaser.Scene {
 
     //Load level
     this.loadLevel(this.currentLevel);
+    this.addLanguageButtons();
     this.createInterface();
     this.redraw();
   }
@@ -88,7 +91,7 @@ export class Play extends Phaser.Scene {
     // Parse YAML content
     const data: Record<string, any> = yaml.load(yamlContent)!;
     const level = data[levelName];
-    if (levelName == "0" || levelName == "1" || levelName == "2") {
+    if (level != null) {
       this.availablePlants = level["available_plants"];
       this.winCondition = this.findWinPairs(level);
     }
@@ -128,11 +131,13 @@ export class Play extends Phaser.Scene {
   findWinPairs(level: Record<string, any>): WinPair[] {
     const winCondition = level["win_conditions"];
     const winPairs: WinPair[] = [];
-
+    let s = "";
     winCondition.forEach((w: [string, number]) => {
       const winPair = { plantName: w[0], amount: w[1] };
+      s += "\n" + this.helper.getEmojifromName(w[0]) + "x" + w[1];
       winPairs.push(winPair);
     });
+    this.add.text(590, 0, s).setFontSize("12pt");
     return winPairs;
   }
 
@@ -156,24 +161,20 @@ export class Play extends Phaser.Scene {
   }
 
   createUndoButton() {
-    const undoButton = document.querySelector(`#undoButton`);
+    const undoButton = document.querySelector(`#↩️Button`);
     undoButton?.addEventListener("click", () => {
       this.performUndoRedo(this.gameHistory, this.redoHistory);
     });
   }
   createRedoButton() {
-    const redoButton = document.querySelector(`#redoButton`);
+    const redoButton = document.querySelector(`#↪️Button`);
     redoButton?.addEventListener("click", () => {
       this.performUndoRedo(this.redoHistory, this.gameHistory);
     });
   }
 
   createSaveButtons() {
-    const saveArr: string[] = [
-      `#savefile1Button`,
-      `#savefile2Button`,
-      `#savefile3Button`,
-    ];
+    const saveArr: string[] = [`#🗄️1Button`, `#🗄️2Button`, `#🗄️3Button`];
 
     saveArr.forEach((element, id) => {
       const save = document.querySelector(element)!;
@@ -203,11 +204,7 @@ export class Play extends Phaser.Scene {
   }
 
   createLoadButtons() {
-    const loadArr: string[] = [
-      `#loadfile1Button`,
-      `#loadfile2Button`,
-      `#loadfile3Button`,
-    ];
+    const loadArr: string[] = [`#🗃️1Button`, `#🗃️2Button`, `#🗃️3Button`];
 
     loadArr.forEach((element, id) => {
       const load = document.querySelector(element)!;
@@ -279,8 +276,8 @@ export class Play extends Phaser.Scene {
 
     if (this.board.haveWon(this.winCondition)) {
       const winText = this.add
-        .text(50, 50, "YOU WON\n!1!!1!!1!!!!")
-        .setFontSize("100pt");
+        .text(0, 50, LevelCompleteTranslation[this.currentLanguage])
+        .setFontSize("80pt");
 
       setTimeout(() => {
         winText.text = "";
@@ -333,6 +330,16 @@ export class Play extends Phaser.Scene {
   deleteAllButtons() {
     const buttonHolder = document.getElementById("ButtonHolder")!;
     buttonHolder.innerHTML = "";
+  }
+
+  addLanguageButtons() {
+    const allLanguages = createLanguageButtons();
+    allLanguages.forEach((language) => {
+      const button = document.getElementById(language.name)!;
+      button.addEventListener("click", () => {
+        this.currentLanguage = language.name;
+      });
+    });
   }
 
   private performUndoRedo(historyList: string[], oppositeList: string[]) {

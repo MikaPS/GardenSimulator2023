@@ -115,7 +115,7 @@ export class InternalPlant {
 
   //places in inventory by moving to the inventory part of the screen
   placeInventory(x: number, index: number) {
-    this.point = { x: x, y: index / 2.7 };
+    this.point = { x: x, y: index / 2.7 + 1.5 };
   }
 
   getGrowPercentage() {
