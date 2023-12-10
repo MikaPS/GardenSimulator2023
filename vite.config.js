@@ -1,5 +1,5 @@
 export default {
   // eslint-disable-next-line no-undef
-  base: process.env.REPO_NAME || "/GardenSimulator2023/",
+  base: process.env.REPO_NAME || "repo-name",
   manifest: true,
 };
