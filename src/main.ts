@@ -19,6 +19,8 @@ const config: Phaser.Types.Core.GameConfig = {
   backgroundColor: "#6b8e23",
 };
 
+console.log(window.location.pathname);
+
 const languageHolder = document.createElement("div");
 languageHolder.id = "languageHolder";
 document.body.appendChild(languageHolder);
