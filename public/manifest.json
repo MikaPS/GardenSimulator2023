@@ -16,7 +16,7 @@
       "purpose": "any"
     }
   ],
-  "start_url": "index.html",
+  "start_url": "/GardenSimulator2023/public/assets/index.html",
   "display": "fullscreen",
   "theme_color": "#B12A34",
   "background_color": "#B12A34"
