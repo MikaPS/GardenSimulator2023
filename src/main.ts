@@ -2,6 +2,9 @@ import * as Phaser from "phaser";
 // import Menu from "./scenes/Menu";
 // import PreloaderScene from "./scenes/Menu";
 import { Play } from "./scenes/Play";
+
+console.log(window.location.pathname);
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .register("/sw.ts")
