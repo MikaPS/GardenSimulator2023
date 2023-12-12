@@ -4,19 +4,19 @@
   "description": "A fun garden game!!!",
   "icons": [
     {
-      "src": "/tiny_turnip.png",
+      "src": "/GardenSimulator2023/public/assets/tiny_turnip.png",
       "sizes": "32x32",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/tiny_turnip_512.png",
+      "src": "/GardenSimulator2023/public/assets/tiny_turnip_512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
   ],
-  "start_url": "/GardenSimulator2023/public/assets/index.html",
+  "start_url": "/GardenSimulator2023/index.html",
   "display": "fullscreen",
   "theme_color": "#B12A34",
   "background_color": "#B12A34"
