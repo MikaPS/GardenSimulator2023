@@ -15,7 +15,7 @@ export default defineConfig({
             purpose: "any maskable",
           },
           {
-            src: "/assets/favicon.ico", // Adjust the path based on your project structure
+            src: "favicon.ico", // Adjust the path based on your project structure
             sizes: "512x512",
             type: "image/x-icon", // Favicon is typically of type 'image/x-icon'
             purpose: "any maskable",
