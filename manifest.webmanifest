@@ -1,17 +1,1 @@
-{
-  "name": "gardensimulator",
-  "short_name": "gardensimulator",
-  "start_url": "/",
-  "icons": [
-    {
-      "src": "/assets/tiny_turnip_512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "lang": "en",
-  "scope": "/"
-}
+{"name":"gardensimulator","short_name":"gardensimulator","start_url":"/","display":"standalone","background_color":"#ffffff","lang":"en","scope":"/","icons":[{"src":"../assets/tiny_turnip_512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
