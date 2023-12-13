@@ -6,10 +6,45 @@
 - 11/21/2023 - f0: https://github.com/MikaPS/GardenSimulator2023/tree/4fc46044b69290cb4b10f7714747767303cfa75b
 - 11/29/2023 - f1: https://github.com/MikaPS/GardenSimulator2023/tree/fb89b34f5511ffad84d5993a19eca70cb018ef2e
 - 12/6/2023 - f2: https://github.com/MikaPS/GardenSimulator2023/commit/66a771bd4a1debcfc322bf0c8c3d570def574296
+- 12/13/2023 - f3: 
 
-### Devlog Entry - 12/4/2023
+### Devlog Entry - 12/3/2023
 
 ## How we satisfied the software requirements
+### F0+F1+F2
+
+The devlog should briefly comment on how the previous requirements remain satisfied in the latest version of your software. If no major changes were made, you can just simply state that no major changes were made. However, if you evolved your design to improve code quality (a good idea!) this section of your devlog entry would be a good place to brag about it.
+
+### Internationalization
+Instead of creating code to translate text on the spot, we put all different translations into a record. Once a language button is pressed, we keep track of the current language using `this.currentLanguage` and use it to parse the record by calling this function: 
+```typescript
+export const LevelCompleteTranslation: Record<string, string> = {
+  English: "Level \nComplete!",
+  Hebrew: "!עברת שלב",
+  Chinese: "关卡完成!",
+};
+```
+The only file we added was `translation.ts` for easier management. Using that file, all we had to do was call it in `Play.ts`.
+
+### Localization
+The three languages this app supports are English, Chinese, and Hebrew. For English, all of the team members had knowledge in it. For Chinese, one of the team members had knowledge and help from their family to correctly put the text in. For Hebrew, one of the team members had knowledge and help from their friend to correctly put the text in. <br>
+
+The default language is English, but can be changed by pressing the buttons on the top left on the interface. Once pressed, all text will be changed to that specific language. Instead of releasing three different versions of the game, we coded into the program to switch between languages depending on what button is pressed using an array.
+
+### Mobile Installation
+
+We used a Vite PWA Plug-in to get our game to be installable on a smartphone-class mobile device. This required us creating and editing multiple files—`sw.js`, `registerSW.js`, `favicon.ico`, `manifest.webmanifest`, etc. We followed numerous videos we saw online to get the mobile installation to work. We also included a radish picture as the app icon.
+
+Links: 
+
+ - inserts links here
+
+### Mobile Play (Offline)
+We started the game with buttons being used for player movements and action, so there was no need to change that. We used service workers for caching.
+
+## Reflection
+Looking back on how you achieved the new F3 requirements, how has your team’s plan changed? Did you reconsider any of the choices you previously described for Tools and Materials or your Roles? Has your game design evolved now that you've started to think about giving the player more feedback? It would be very suspicious if you didn’t need to change anything. There’s learning value in you documenting how your team’s thinking has changed over time.
+
 
 # F2 Requirements:
 
