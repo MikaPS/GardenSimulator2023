@@ -1,9 +1,9 @@
 import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
-import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
-  publicDir: "./public/www",
+  publicDir: "public",
+  base: process.env.REPO_NAME || "",
   plugins: [
     VitePWA({
       manifest: {
@@ -14,13 +14,19 @@ export default defineConfig({
             type: "image/png",
             purpose: "any maskable",
           },
+          {
+            src: "/assets/favicon.ico", // Adjust the path based on your project structure
+            sizes: "512x512",
+            type: "image/x-icon", // Favicon is typically of type 'image/x-icon'
+            purpose: "any maskable",
+          },
         ],
       },
       workbox: {
         runtimeCaching: [
           {
             urlPattern: ({ url }) => {
-              return url.pathname.startsWith("/");
+              return url.pathname.startsWith("");
             },
             handler: "CacheFirst" as const,
             options: {
@@ -37,10 +43,8 @@ export default defineConfig({
   build: {
     outDir: "../wwwroot/",
     emptyOutDir: true,
-  },
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
+    // rollupOptions: {
+    //   external: ["assets/scenario.yaml"],
+    // },
   },
 });

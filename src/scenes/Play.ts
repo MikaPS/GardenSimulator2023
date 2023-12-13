@@ -9,7 +9,7 @@ import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
 import { LevelCompleteTranslation } from "../assets/translations.ts";
 
 import yamldata from "../../public/assets/scenario.yaml?url";
-//import yamldata from "/assets/scenario.yaml?url";
+//import yamldata from "assets/scenario.yaml?url";
 console.log("yamldata:", yamldata);
 
 // import image1 from "/assets/tiny_turnip.jpg";
@@ -36,12 +36,14 @@ export class Play extends Phaser.Scene {
   }
 
   preload() {
+    console.log("load text");
     this.load.text("yamlData", yamldata);
-    console.log("Load yamlData:", yamldata);
+    console.log("load yamlData:", yamldata);
   }
 
   create() {
     // save initial state when opening it for the first time
+    console.log("Play Create() happening");
     if (!localStorage.getItem("firstTimeFlag")) {
       for (let i = 0; i < 3; i++) {
         this.board.saveData(i);
@@ -93,7 +95,34 @@ export class Play extends Phaser.Scene {
 
   setLevelData(levelName: string) {
     // Read from YAML file
-    const yamlContent = this.cache.text.get("yamlData");
+    const yamlContent = `0:
+  available_plants:
+    - sunflower
+  win_conditions:
+    - - sunflower
+      - 2
+1:
+  available_plants:
+    - sunflower
+    - appleTree
+  win_conditions:
+    - - sunflower
+      - 2
+    - - appleTree
+      - 6
+2:
+  available_plants:
+    - sunflower
+    - appleTree
+    - lilyOfTheValley
+  win_conditions:
+    - - sunflower
+      - 2
+    - - appleTree
+      - 6
+    - - lilyOfTheValley
+      - 3
+    `;
     console.log("Use yamlContent:", yamlContent);
     // Parse YAML content
     const data: Record<string, any> = yaml.load(yamlContent)!;

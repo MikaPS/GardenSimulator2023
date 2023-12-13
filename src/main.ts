@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-// import Menu from "./scenes/Menu";
+import { Menu } from "./scenes/Menu";
 // import PreloaderScene from "./scenes/Menu";
 import { Play } from "./scenes/Play";
 
@@ -18,7 +18,7 @@ console.log(window.location.pathname);
 const config: Phaser.Types.Core.GameConfig = {
   width: 640,
   height: 480,
-  scene: [Play],
+  scene: [Menu, Play],
   backgroundColor: "#6b8e23",
 };
 
@@ -48,7 +48,9 @@ export function createLanguageButtons() {
   return languages;
 }
 
+console.log("Before phaser load");
 new Phaser.Game(config);
+console.log("after phaser load");
 
 document.title = "Garden Simulator 2023";
 document.body.style.backgroundColor = "#6F4E37";
