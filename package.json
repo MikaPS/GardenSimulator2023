@@ -10,6 +10,7 @@
     "test": "tsc && vite build && eslint ."
   },
   "devDependencies": {
+    "@types/js-yaml": "4.0.9",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "bitecs": "^0.3.40",
@@ -20,9 +21,8 @@
     "pre-commit": "^1.2.2",
     "prettier": "^3.0.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-pwa": "^0.17.4",
-    "@types/js-yaml": "4.0.9"
+    "vite": "^4.5.1",
+    "vite-plugin-pwa": "^0.17.4"
   },
   "eslintConfig": {
     "root": true,
