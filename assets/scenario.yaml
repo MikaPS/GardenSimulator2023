@@ -1,0 +1,27 @@
+0:
+  available_plants:
+    - sunflower
+  win_conditions:
+    - - sunflower
+      - 2
+1:
+  available_plants:
+    - sunflower
+    - appleTree
+  win_conditions:
+    - - sunflower
+      - 2
+    - - appleTree
+      - 6
+2:
+  available_plants:
+    - sunflower
+    - appleTree
+    - lilyOfTheValley
+  win_conditions:
+    - - sunflower
+      - 2
+    - - appleTree
+      - 6
+    - - lilyOfTheValley
+      - 3
