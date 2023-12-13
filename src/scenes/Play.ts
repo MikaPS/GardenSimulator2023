@@ -8,8 +8,9 @@ import { createLanguageButtons, createMovementButtons } from "../main.ts";
 import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
 import { LevelCompleteTranslation } from "../assets/translations.ts";
 
-import yamldata from "/assets/scenario.yaml?url";
-//import yamldata from "../../public/assets/scenario.yaml?url";
+import yamldata from "../../public/assets/scenario.yaml?url";
+//import yamldata from "/assets/scenario.yaml?url";
+console.log("yamldata:", yamldata);
 
 // import image1 from "/assets/tiny_turnip.jpg";
 // import image2 from "/assets/tiny_turnip512.jpg";
@@ -36,6 +37,7 @@ export class Play extends Phaser.Scene {
 
   preload() {
     this.load.text("yamlData", yamldata);
+    console.log("Load yamlData:", yamldata);
   }
 
   create() {
@@ -92,6 +94,7 @@ export class Play extends Phaser.Scene {
   setLevelData(levelName: string) {
     // Read from YAML file
     const yamlContent = this.cache.text.get("yamlData");
+    console.log("Use yamlContent:", yamlContent);
     // Parse YAML content
     const data: Record<string, any> = yaml.load(yamlContent)!;
     const level = data[levelName];
