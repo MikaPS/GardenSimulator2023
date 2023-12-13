@@ -9,11 +9,6 @@ import { PlantUtilityFunctions } from "../classes/plantDefinitions.ts";
 import { LevelCompleteTranslation } from "../assets/translations.ts";
 
 import yamldata from "../../public/assets/scenario.yaml?url";
-//import yamldata from "assets/scenario.yaml?url";
-console.log("yamldata:", yamldata);
-
-// import image1 from "/assets/tiny_turnip.jpg";
-// import image2 from "/assets/tiny_turnip512.jpg";
 
 export class Play extends Phaser.Scene {
   board: GameWorld = new GameWorld();
@@ -36,27 +31,18 @@ export class Play extends Phaser.Scene {
   }
 
   preload() {
-    console.log("load text");
     const yamlString = yamldata as string;
-    //const yamlString = `data:text/yaml;base64,MDoNCiAgYXZhaWxhYmxlX3BsYW50czoNCiAgICAtIHN1bmZsb3dlcg0KICB3aW5fY29uZGl0aW9uczoNCiAgICAtIC0gc3VuZmxvd2VyDQogICAgICAtIDINCjE6DQogIGF2YWlsYWJsZV9wbGFudHM6DQogICAgLSBzdW5mbG93ZXINCiAgICAtIGFwcGxlVHJlZQ0KICB3aW5fY29uZGl0aW9uczoNCiAgICAtIC0gc3VuZmxvd2VyDQogICAgICAtIDINCiAgICAtIC0gYXBwbGVUcmVlDQogICAgICAtIDYNCjI6DQogIGF2YWlsYWJsZV9wbGFudHM6DQogICAgLSBzdW5mbG93ZXINCiAgICAtIGFwcGxlVHJlZQ0KICAgIC0gbGlseU9mVGhlVmFsbGV5DQogIHdpbl9jb25kaXRpb25zOg0KICAgIC0gLSBzdW5mbG93ZXINCiAgICAgIC0gMg0KICAgIC0gLSBhcHBsZVRyZWUNCiAgICAgIC0gNg0KICAgIC0gLSBsaWx5T2ZUaGVWYWxsZXkNCiAgICAgIC0gMw0K`;
 
     if (yamlString.indexOf("data:text/yaml;base64,") != -1) {
-      console.log("Base64 yaml detected");
       const b64 = yamlString.substring(22);
-      console.log("New text|", b64);
-      console.log("Decoded text|", atob(b64));
       this.cache.text.add("yamlData", atob(b64));
     } else {
-      console.log("Normal yaml detected");
       this.load.text("yamlData", yamldata);
     }
-    console.log("----------");
-    console.log(this.cache.text.get("yamlData"));
   }
 
   create() {
     // save initial state when opening it for the first time
-    console.log("Play Create() happening");
     if (!localStorage.getItem("firstTimeFlag")) {
       for (let i = 0; i < 3; i++) {
         this.board.saveData(i);
@@ -109,7 +95,6 @@ export class Play extends Phaser.Scene {
   setLevelData(levelName: string) {
     // Read from YAML file
     const yamlContent = this.cache.text.get("yamlData");
-    console.log("Got content:", yamlContent);
     // Parse YAML content
     const data: Record<string, any> = yaml.load(yamlContent)!;
     const level = data[levelName];
