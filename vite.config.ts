@@ -37,18 +37,6 @@ export default defineConfig({
               },
             },
           },
-          // {
-          //   urlPattern: ({ url }) => {
-          //     return url.pathname.startsWith("/");
-          //   },
-          //   handler: "CacheFirst" as const,
-          //   options: {
-          //     cacheName: "api-cache",
-          //     cacheableResponse: {
-          //       statuses: [0, 200],
-          //     },
-          //   },
-          // },
         ],
       },
     }),
@@ -56,8 +44,5 @@ export default defineConfig({
   build: {
     outDir: "../wwwroot/",
     emptyOutDir: true,
-    // rollupOptions: {
-    //   external: ["assets/scenario.yaml"],
-    // },
   },
 });
