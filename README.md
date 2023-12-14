@@ -32,15 +32,15 @@ The only file we added was `translation.ts` for easier management. Using that fi
 
 ### Localization
 
-The three languages this app supports are English, Chinese, and Hebrew. For English, all of the team members had knowledge in it. For Chinese, one of the team members had knowledge and help from their family to correctly put the text in. For Hebrew, one of the team members had knowledge and help from their friend to correctly put the text in. <br>
+The three languages this app supports are English, Chinese, and Hebrew. For English, all of the team members had knowledge of it. For Chinese, one of the team members had knowledge and help from their family to correctly put the text in. For Hebrew, one of the team members had knowledge and help from their friend to correctly put the text in. <br>
 
-The default language is English, but can be changed by pressing the buttons on the top left on the interface. Once pressed, all text will be changed to that specific language. Instead of releasing three different versions of the game, we coded into the program to switch between languages depending on what button is pressed using an array.
+The default language is English, but can be changed by pressing the buttons on the top left of the interface. Once pressed, all text will be changed to that specific language. Instead of releasing three different versions of the game, we coded into the program to switch between languages depending on what button is pressed using an array.
 
-We tried to not have a lot of text in the game, and instead used emojis to show the goals of the game. Before the requirement, we had buttons with text like `undo`, `redo`, and `savefile`, that we know switched to corrasponding emojis. Moreover, to illustrate what plants the players need to collect to win, we use minimal text `emoji of plant x amount that needs to be collected`, so it would be understandable across languages.
+We tried to not have a lot of text in the game, and instead used emojis to show the goals of the game. Before the requirement, we had buttons with text like `undo`, `redo`, and `savefile`, which we now switched to corresponding emojis. Moreover, to illustrate what plants the players need to collect to win, we use minimal text `emoji of plant x amount that needs to be collected`, so it would be understandable across languages.
 
 ### Mobile Installation
 
-We used a Vite PWA Plug-in to get our game to be installable on a smartphone-class mobile device. The main file that we edited is `vite.config.ts` where we defined the manifest and icons for the app.
+We used a Vite PWA Plug-in to get our game to be installable on a smartphone-class mobile device (only Androids are supported at the moment). The main file that we edited is `vite.config.ts` where we defined the manifest and icons for the app.
 
 ```typescript
   plugins: [
@@ -77,9 +77,9 @@ Links:
 
 ### Mobile Play (Offline)
 
-We started the game with buttons being used for player movements and action, so there was no need to change that. The game is usable on all devices. We used service workers for caching.
+We started the game with buttons being used for player movements and actions, so there was no need to change that. The game is usable on all devices. We used service workers for caching.
 
-However, we had to change the `vite.config.ts` to ensure our images and yaml file would be parsed offline:
+However, we had to change the `vite.config.ts` to ensure our images and YAML file would be parsed offline:
 
 ```typescript
  workbox: {
@@ -102,13 +102,13 @@ However, we had to change the `vite.config.ts` to ensure our images and yaml fil
 
 ## Reflection
 
-We added more feedback to the player, specifically a way to know which plants they need to collect to finish a level. The buttons for the plants available are also updated in each level based on the plants available. The most recent requirements did not change a lot in the design perspective, but we had to change a bit of our code and the way we load assets into the game to make sure everything would show up in a mobile application as well. We had trouble making the game installable using vite, so we also experiemented by changing the vite tool in order to build and run the game. Ultimatley, we decided that it would be too much work to change the build mechanic for the game, and we discoved the Vite PWA plug in that greatly helped us finish the requirement. Overall, we had some up and downs with the tools for these requirements, but we were able to use our original materials to complete all of the assignment.
+We added more feedback to the player, specifically a way to know which plants they need to collect to finish a level. The buttons for the plants available are also updated at each level based on the plants available. So, only sunflowers are available at level 1, while apple trees are added at level 2. The most recent requirements did not change a lot from the design perspective, but we had to change a bit of our code and the way we load assets into the game to make sure everything would show up in a mobile application as well. We had trouble making the game installable using Vite, so we experimented by changing the Vite tool in order to build and run the game. Ultimately, we decided that it would be too much work to change the build mechanic for the game, and we discovered the Vite PWA plug-in that greatly helped us finish the requirement. Overall, we had some ups and downs with the tools for these requirements, but we were able to use our original materials to complete all of the assignments.
 
 # F2 Requirements:
 
 ### External DSL for Scenario Design
 
-We are using YAML external DSL to set up our scenrios. We have three levels (level 1, 2, 3), each defining the available plants in the level and the winning conditions. We chose to use YAML over JSON because it was easier to read and edit, which allowed us to maneuver through the file and test things as needed.
+We are using YAML external DSL to set up our scenarios. We have three levels (level 1, 2, 3), each defining the available plants in the level and the winning conditions. We chose to use YAML over JSON because it was easier to read and edit, which allowed us to maneuver through the file and test things as needed.
 
 ```YAML
 0:
